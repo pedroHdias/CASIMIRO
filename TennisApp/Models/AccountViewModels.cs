@@ -79,6 +79,11 @@ namespace TennisApp.Models
         [Display(Name = "Confirm password")]
         [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
         public string ConfirmPassword { get; set; }
+
+        // identifica os dados pessoais do utilizador
+        public Utilizador Utilizador { get; set; }
+
+
     }
 
     public class ResetPasswordViewModel

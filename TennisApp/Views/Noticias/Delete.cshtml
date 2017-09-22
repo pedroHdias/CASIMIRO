@@ -1,0 +1,96 @@
+﻿@model TennisApp.Models.Noticia
+
+@{
+    ViewBag.Title = "Remover";
+}
+
+<h2>Remover</h2>
+
+<h3>Tem a certeza que pretende remover?</h3>
+<div>
+    <h4>Notícia</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.Criador.Nome)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Criador.Nome)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Titulo)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Titulo)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Descricao)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Descricao)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Foto)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Foto)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.TipoImagem)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.TipoImagem)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Relevancia)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Relevancia)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.DataPublicacao)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.DataPublicacao)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.DataLimiteVisualizacao)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.DataLimiteVisualizacao)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Visivel)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Visivel)
+        </dd>
+
+    </dl>
+
+    @using (Html.BeginForm()) {
+        @Html.AntiForgeryToken()
+
+        <div class="form-actions no-color">
+            <input type="submit" value="Remover" class="btn btn-default" /> |
+            @Html.ActionLink("Voltar à lista", "Index")
+        </div>
+    }
+</div>

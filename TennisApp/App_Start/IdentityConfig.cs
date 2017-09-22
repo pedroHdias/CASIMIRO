@@ -11,6 +11,9 @@ using Microsoft.AspNet.Identity.Owin;
 using Microsoft.Owin;
 using Microsoft.Owin.Security;
 using TennisApp.Models;
+using System.Net.Mail;
+using System.Net.Mime;
+using System.Configuration;
 
 namespace TennisApp
 {
@@ -19,7 +22,34 @@ namespace TennisApp
         public Task SendAsync(IdentityMessage message)
         {
             // Plug in your email service here to send an email.
-            return Task.FromResult(0);
+            //return Task.FromResult(0);
+            return Task.Factory.StartNew(() =>
+            {
+                sendMail(message);
+            });
+        }
+        void sendMail(IdentityMessage message)
+        {
+            #region formatter
+            //string text = string.Format("Please click on this link to {0}: {1}", message.Subject, message.Body);
+            //string html = "Please confirm your account by clicking this link: <a href=\"" + message.Body + "\">link</a><br/>";
+            string html = "";
+            html += HttpUtility.HtmlEncode(@"Clique ou copie o seguinte link para o browser para confirmar a sua conta \n" + message.Body);
+            #endregion
+
+            MailMessage msg = new MailMessage();
+            msg.From = new MailAddress(ConfigurationManager.AppSettings["email"].ToString());
+            msg.To.Add(new MailAddress(message.Destination));
+            msg.Subject = message.Subject;
+            //msg.AlternateViews.Add(AlternateView.CreateAlternateViewFromString(text, null, MediaTypeNames.Text.Plain));
+            msg.AlternateViews.Add(AlternateView.CreateAlternateViewFromString(html, null, MediaTypeNames.Text.Html));
+
+            SmtpClient smtpClient = new SmtpClient("smtp.gmail.com", Convert.ToInt32(587));
+            System.Net.NetworkCredential credentials = new System.Net.NetworkCredential(ConfigurationManager.AppSettings["email"].ToString(),
+                                                                                        ConfigurationManager.AppSettings["password"].ToString());
+            smtpClient.Credentials = credentials;
+            smtpClient.EnableSsl = true;
+            smtpClient.Send(msg);
         }
     }
 

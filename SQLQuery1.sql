@@ -1,0 +1,1 @@
+﻿DBCC CHECKIDENT ('[Categorias]', RESEED, 0)

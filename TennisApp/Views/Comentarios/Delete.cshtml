@@ -1,0 +1,64 @@
+﻿@model TennisApp.Models.Comentario
+
+@{
+    ViewBag.Title = "Remover";
+}
+
+<h2>Remover</h2>
+
+<h3>Tem a certeza que pretende remover?</h3>
+<div>
+    <h4>Comentário</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.Criador.Nome)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Criador.Nome)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Noticia.Titulo)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Noticia.Titulo)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Texto)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Texto)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.DataComentario)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.DataComentario)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Visivel)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Visivel)
+        </dd>
+
+    </dl>
+
+    @using (Html.BeginForm()) {
+        @Html.AntiForgeryToken()
+
+        <div class="form-actions no-color">
+            <input type="submit" value="Remover" class="btn btn-default" /> |
+            @Html.ActionLink("Voltar à lista", "Index")
+        </div>
+    }
+</div>

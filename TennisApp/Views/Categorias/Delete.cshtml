@@ -1,0 +1,39 @@
+﻿@model TennisApp.Models.Categoria
+
+@{
+    ViewBag.Title = "Remover";
+}
+
+<h2>Remover</h2>
+
+<h3>Tem a certeza que pretende remover?</h3>
+<div>
+    <h4>Categoria</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.Nome )
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Nome)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Descricao)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Descricao)
+        </dd>
+
+    </dl>
+
+    @using (Html.BeginForm()) {
+        @Html.AntiForgeryToken()
+
+        <div class="form-actions no-color">
+            <input type="submit" value="Remover" class="btn btn-default" /> |
+            @Html.ActionLink("Voltar à lista", "Index")
+        </div>
+    }
+</div>

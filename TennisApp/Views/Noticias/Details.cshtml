@@ -1,0 +1,90 @@
+﻿@model TennisApp.Models.Noticia
+
+@{
+    ViewBag.Title = "Detalhes";
+}
+
+<h2>Detalhes</h2>
+
+<div>
+    <h4>Notícia</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.Criador.Nome)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Criador.Nome)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Titulo)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Titulo)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Descricao)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Descricao)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Foto)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Foto)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.TipoImagem)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.TipoImagem)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Relevancia)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Relevancia)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.DataPublicacao)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.DataPublicacao)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.DataLimiteVisualizacao)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.DataLimiteVisualizacao)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Visivel)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Visivel)
+        </dd>
+
+    </dl>
+</div>
+<p>
+    @Html.ActionLink("Editar", "Edit", new { id = Model.IdNoticia }) |
+    @Html.ActionLink("Voltar à lista", "Index")
+</p>

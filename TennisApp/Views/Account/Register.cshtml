@@ -1,6 +1,6 @@
 ﻿@model TennisApp.Models.RegisterViewModel
 @{
-    ViewBag.Title = "Register";
+    ViewBag.Title = "Registar";
 }
 
 <h2>@ViewBag.Title.</h2>
@@ -29,11 +29,42 @@
             @Html.PasswordFor(m => m.ConfirmPassword, new { @class = "form-control" })
         </div>
     </div>
+
+    <hr />
+    //Nome da pessoa
     <div class="form-group">
-        <div class="col-md-offset-2 col-md-10">
-            <input type="submit" class="btn btn-default" value="Register" />
+        @Html.LabelFor(m => m.Utilizador.Nome, new { @class = "col-md-2 control-label" })
+        <div class="col-md-10">
+            @Html.TextBoxFor(m => m.Utilizador.Nome, new { @class = "form-control" })
         </div>
     </div>
+    //telemovel da pessoa
+    <div class="form-group">
+        @Html.LabelFor(m => m.Utilizador.Telemovel, new { @class = "col-md-2 control-label" })
+        <div class="col-md-10">
+            @Html.TextBoxFor(m => m.Utilizador.Telemovel, new { @class = "form-control" })
+        </div>
+    </div>
+    //Data de Nasc. da pessoa
+    <div class="form-group">
+        @Html.LabelFor(m => m.Utilizador.DataNasc, new { @class = "col-md-2 control-label" })
+        <div class="col-md-10">
+            @Html.TextBoxFor(m => m.Utilizador.DataNasc, new { @class = "form-control" })
+        </div>
+    </div>
+
+
+
+
+
+
+        <hr />
+
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <input type="submit" class="btn btn-default" value="Registar" />
+            </div>
+        </div>
 }
 
 @section Scripts {

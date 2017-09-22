@@ -1,0 +1,58 @@
+﻿@model TennisApp.Models.Comentario
+
+@{
+    ViewBag.Title = "Detalhes";
+}
+
+<h2>Detalhes</h2>
+
+<div>
+    <h4>Comentário</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.Criador.Nome)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Criador.Nome)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Noticia.Titulo)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Noticia.Titulo)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Texto)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Texto)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.DataComentario)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.DataComentario)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Visivel)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Visivel)
+        </dd>
+
+    </dl>
+</div>
+<p>
+    @Html.ActionLink("Editar", "Edit", new { id = Model.IdComentario }) |
+    @Html.ActionLink("Voltar à lista", "Index")
+</p>

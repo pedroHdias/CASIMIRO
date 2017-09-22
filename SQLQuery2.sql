@@ -1,0 +1,1 @@
+﻿DBCC CHECKIDENT(Noticias, RESEED, 0)

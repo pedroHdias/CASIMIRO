@@ -1,0 +1,64 @@
+﻿@model TennisApp.Models.Utilizador
+
+@{
+    ViewBag.Title = "Demover";
+}
+
+<h2>Demover</h2>
+
+<h3>Tem a certeza que pretende remover?</h3>
+<div>
+    <h4>Utilizador</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.Nome)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Nome)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Email)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Email)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Telemovel)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Telemovel)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.DataNasc)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.DataNasc)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.UserName)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.UserName)
+        </dd>
+
+    </dl>
+
+    @using (Html.BeginForm()) {
+        @Html.AntiForgeryToken()
+
+        <div class="form-actions no-color">
+            <input type="submit" value="Remover" class="btn btn-default" /> |
+            @Html.ActionLink("Voltar à lista", "Index")
+        </div>
+    }
+</div>

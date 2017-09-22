@@ -1,0 +1,18 @@
+﻿@model System.Web.Mvc.HandleErrorInfo
+
+@{
+    ViewBag.Title = "Not Found";
+}
+
+<h1 class="text-danger">Não foi encontrado o recurso pedido.</h1>
+<h2 class="text-danger">Por favor contacte o Admin.</h2>
+<div>
+    @using (Html.BeginForm())
+    {
+        @Html.AntiForgeryToken()
+
+        <div class="form-actions no-color">
+            @Html.ActionLink("Voltar à lista", "Index")
+        </div>
+    }
+</div>

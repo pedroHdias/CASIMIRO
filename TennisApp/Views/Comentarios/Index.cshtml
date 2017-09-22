@@ -1,0 +1,97 @@
+﻿@using PagedList;
+@using PagedList.Mvc;
+
+@model IPagedList<TennisApp.Models.Comentario>
+
+@{
+    ViewBag.Title = "Lista de Comentários";
+}
+
+<h2>Lista de Comentários</h2>
+@* Outra maneira de implementar search
+    <p>
+        @Html.ActionLink("Criar um novo Comentário", "Create")
+        @using (Html.BeginForm("Index", "Comentarios", FormMethod.Get))
+        {
+        <p>
+            Data do Comentário: @Html.DropDownList("dataComentarioString", "Qualquer")
+            Título: @Html.TextBox("searchString")
+            <input type="submit" value="Procurar" />
+        </p>
+        }
+    </p>
+*@
+
+<div>
+    @Html.ActionLink("Criar um novo Comentário", "Create")
+    @using (Html.BeginForm("Index", "Comentarios", FormMethod.Get))
+    {
+        <b>Procurar por: </b>
+        @Html.RadioButton("searchBy", "Autor", true) <text>Autor</text>
+        @Html.RadioButton("searchBy", "Noticia", true) <text>Notícia</text>
+        @Html.RadioButton("searchBy", "Texto", true) <text>Texto</text>
+        <br />
+            @Html.TextBox("search")  <input type="submit" value="Procurar" />
+    }
+
+    <table class="table">
+        <tr>
+            <th>
+                @Html.ActionLink("Autor", "Index", new { sortBy = ViewBag.SortAutorParameter, searchBy = Request.QueryString["searchBy"], search = Request["search"] })
+            </th>
+            <th>
+                @Html.ActionLink("Notícia", "Index", new { sortBy = ViewBag.SortNoticiaParameter, searchBy = Request.QueryString["searchBy"], search = Request["search"] })
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.First().Texto)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.First().DataComentario)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.First().Visivel)
+            </th>
+            <th></th>
+        </tr>
+        @if (Model.Count() == 0)
+        {
+            <tr>
+                <td colspan="4"> Não foi encontrado o que procura.</td>
+            </tr>
+        }
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Criador.Nome)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Noticia.Titulo)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Texto)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.DataComentario)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Visivel)
+                </td>
+                <td>
+                    @Html.ActionLink("Editar", "Edit", new { id = item.IdComentario }) |
+                    @Html.ActionLink("Detalhes", "Details", new { id = item.IdComentario }) |
+                    @Html.ActionLink("Remover", "Delete", new { id = item.IdComentario })
+                </td>
+            </tr>
+        }
+
+    </table>
+    @Html.PagedListPager(Model, page => Url.Action("Index", new
+{
+    page,
+    searchBy = Request.QueryString["searchBy"],
+    search = Request.QueryString["search"],
+    sortBy = Request["sortBy"]
+}),
+new PagedListRenderOptions() { Display = PagedListDisplayMode.IfNeeded, DisplayPageCountAndCurrentLocation = true, DisplayItemSliceAndTotal = true })
+</div>

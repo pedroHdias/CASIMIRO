@@ -9,6 +9,7 @@ using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.Owin;
 using Microsoft.Owin.Security;
 using TennisApp.Models;
+using System.Web.Security;
 
 namespace TennisApp.Controllers
 {
@@ -72,14 +73,31 @@ namespace TennisApp.Controllers
             {
                 return View(model);
             }
-
+            var userid = UserManager.FindByEmail(model.Email).Id;
+            if (!UserManager.IsEmailConfirmed(userid))
+            {
+                return View("EmailNotConfirmed");
+            }
             // This doesn't count login failures towards account lockout
             // To enable password failures to trigger account lockout, change to shouldLockout: true
             var result = await SignInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, shouldLockout: false);
             switch (result)
             {
                 case SignInStatus.Success:
-                    return RedirectToLocal(returnUrl);
+                    {
+
+
+                        var user = await UserManager.FindByNameAsync(model.Email);
+                        if (user != null)
+                        {
+                            if (!await UserManager.IsEmailConfirmedAsync(user.Id))
+                            {
+                                return RedirectToAction("Login");
+                            }
+                        }
+
+                        return RedirectToLocal(returnUrl);
+                    }
                 case SignInStatus.LockedOut:
                     return View("Lockout");
                 case SignInStatus.RequiresVerification:
@@ -155,13 +173,30 @@ namespace TennisApp.Controllers
                 var result = await UserManager.CreateAsync(user, model.Password);
                 if (result.Succeeded)
                 {
+
+                    //criar os dados do Utilizador
+                    ApplicationDbContext db = new ApplicationDbContext();
+                    Utilizador utilizador = new Utilizador();
+
+                    utilizador.Nome = model.Utilizador.Nome;
+                    utilizador.Email = model.Email;
+                    utilizador.Telemovel = model.Utilizador.Telemovel;
+                    utilizador.DataNasc = model.Utilizador.DataNasc;
+                    utilizador.UserName = model.Email;
+                    db.Utilizadores.Add(utilizador);
+                    db.SaveChanges();
+
+                    
+                    // associar o utilizador ao Role 'Cliente'
+                    var result1 = await UserManager.AddToRoleAsync(user.Id, "Default");
+
                     await SignInManager.SignInAsync(user, isPersistent:false, rememberBrowser:false);
                     
                     // For more information on how to enable account confirmation and password reset please visit https://go.microsoft.com/fwlink/?LinkID=320771
                     // Send an email with this link
-                    // string code = await UserManager.GenerateEmailConfirmationTokenAsync(user.Id);
-                    // var callbackUrl = Url.Action("ConfirmEmail", "Account", new { userId = user.Id, code = code }, protocol: Request.Url.Scheme);
-                    // await UserManager.SendEmailAsync(user.Id, "Confirm your account", "Please confirm your account by clicking <a href=\"" + callbackUrl + "\">here</a>");
+                    string code = await UserManager.GenerateEmailConfirmationTokenAsync(user.Id);
+                    var callbackUrl = Url.Action("ConfirmEmail", "Account", new { userId = user.Id, code = code }, protocol: Request.Url.Scheme);
+                    await UserManager.SendEmailAsync(user.Id, "Confirm your account", "Please confirm your account by clicking <a href=\"" + callbackUrl + "\">here</a>");
 
                     return RedirectToAction("Index", "Home");
                 }
@@ -202,7 +237,7 @@ namespace TennisApp.Controllers
         {
             if (ModelState.IsValid)
             {
-                var user = await UserManager.FindByNameAsync(model.Email);
+                var user = await UserManager.FindByEmailAsync(model.Email);
                 if (user == null || !(await UserManager.IsEmailConfirmedAsync(user.Id)))
                 {
                     // Don't reveal that the user does not exist or is not confirmed
@@ -211,10 +246,10 @@ namespace TennisApp.Controllers
 
                 // For more information on how to enable account confirmation and password reset please visit https://go.microsoft.com/fwlink/?LinkID=320771
                 // Send an email with this link
-                // string code = await UserManager.GeneratePasswordResetTokenAsync(user.Id);
-                // var callbackUrl = Url.Action("ResetPassword", "Account", new { userId = user.Id, code = code }, protocol: Request.Url.Scheme);		
-                // await UserManager.SendEmailAsync(user.Id, "Reset Password", "Please reset your password by clicking <a href=\"" + callbackUrl + "\">here</a>");
-                // return RedirectToAction("ForgotPasswordConfirmation", "Account");
+                string code = await UserManager.GeneratePasswordResetTokenAsync(user.Id);
+                var callbackUrl = Url.Action("ResetPassword", "Account", new { userId = user.Id, code = code }, protocol: Request.Url.Scheme);		
+                await UserManager.SendEmailAsync(user.Id, "Reset Password", "Please reset your password by clicking <a href=\"" + callbackUrl + "\">here</a>");
+                return RedirectToAction("ForgotPasswordConfirmation", "Account");
             }
 
             // If we got this far, something failed, redisplay form
@@ -248,7 +283,7 @@ namespace TennisApp.Controllers
             {
                 return View(model);
             }
-            var user = await UserManager.FindByNameAsync(model.Email);
+            var user = await UserManager.FindByEmailAsync(model.Email);
             if (user == null)
             {
                 // Don't reveal that the user does not exist

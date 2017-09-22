@@ -1,0 +1,166 @@
+﻿@using PagedList;
+@using PagedList.Mvc;
+
+@model IPagedList<TennisApp.Models.Noticia>
+
+@{
+    ViewBag.Title = "Lista de Notícias";
+}
+@if (TempData["Create"] != null)
+{
+    <div class="alert alert-success">
+        <strong>Notícia criada!</strong>
+        A notícia " @TempData["Create"].ToString() " foi criada com sucesso.
+    </div>
+}
+@if (TempData["Edit"] != null)
+{
+    <div class="alert alert-warning">
+        <strong>Notícia editada!</strong>
+        A notícia " @TempData["Edit"].ToString() " foi editada com sucesso.
+    </div>
+}
+@if (TempData["Delete"] != null)
+{
+    <div class="alert alert-success">
+        <strong>Notícia editada!</strong>
+        A notícia " @TempData["Delete"].ToString() " foi eliminada com sucesso.
+    </div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">
+        <strong>Erro!</strong>
+        Ocorreu um erro: @TempData["Error"].ToString() .
+    </div>
+}
+
+<h2>Lista de Notícias</h2>
+
+<div class="container">
+    <div class="row">
+        @if (User.IsInRole("Administrador"))
+        {
+            <div class="row" style="font-size:20px;">
+                <div class="col-md-12">
+                    <label style="float:right; margin-top: 5px; margin-right:85px;">@Html.ActionLink("Criar uma notícia", "Create")</label>
+                </div>
+            </div>
+        }
+        @using (Html.BeginForm("Index", "Noticias", FormMethod.Get))
+        {
+            <label style="float:left; margin-top: 5px; margin-right:85px;">Procurar por:</label>
+            @Html.RadioButton("searchBy", "Autor", true) <text>Autor</text>
+            @Html.RadioButton("searchBy", "Titulo", true) <text>Título</text>
+            @Html.RadioButton("searchBy", "Texto", true) <text>Texto</text>
+            <br />
+            @Html.TextBox("search")  <input type="submit" value="Procurar" />
+        }
+    </div>
+
+
+    @if (Model.Count() == 0)
+    {
+        <label style="float:right; margin-top: 5px; margin-right:85px;">Não foi encontrado o que procura.</label>
+    }
+    @foreach (var item in Model)
+    {
+        <div class="row">
+            <img src=@Html.DisplayFor(modelItem => item.Foto) class="col-md-2" />
+            <div class="col-md-10" style="display:block; padding:5px; font-size:20px;">
+                <p class="paragComLimite">
+                    <b style="color:#00A3C0">Categorias (erro)</b>
+                    @Html.DisplayFor(modelItem => item.Titulo)
+                </p>
+                <p style="font-size:14px;">@Html.DisplayFor(modelItem => item.DataPublicacao)</p>
+            </div>
+        </div>
+    }
+
+
+
+    <table class="table">
+        <tr>
+            <th>
+                @Html.ActionLink("Autor", "Index", new { sortBy = ViewBag.SortAutorParameter, searchBy = Request.QueryString["searchBy"], search = Request["search"] })
+            </th>
+            <th>
+                @Html.ActionLink("Titulo", "Index", new { sortBy = ViewBag.SortTituloParameter, searchBy = Request.QueryString["searchBy"], search = Request["search"] })
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.First().Descricao)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.First().Foto)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.First().TipoImagem)
+            </th>
+            <th>
+                @Html.ActionLink("Relevância", "Index", new { sortBy = ViewBag.SortRelevanciaParameter, searchBy = Request.QueryString["searchBy"], search = Request["search"] })
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.First().DataPublicacao)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.First().DataLimiteVisualizacao)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.First().Visivel)
+            </th>
+            <th></th>
+        </tr>
+        @if (Model.Count() == 0)
+        {
+            <tr>
+                <td colspan="4"> Não foi encontrado o que procura.</td>
+            </tr>
+        }
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Criador.Nome)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Titulo)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Descricao)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Foto)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.TipoImagem)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Relevancia)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.DataPublicacao)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.DataLimiteVisualizacao)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Visivel)
+                </td>
+                <td>
+                    @Html.ActionLink("Editar", "Edit", new { id = item.IdNoticia }) |
+                    @Html.ActionLink("Detalhes", "Details", new { id = item.IdNoticia }) |
+                    @Html.ActionLink("Remover", "Delete", new { id = item.IdNoticia })
+                </td>
+            </tr>
+        }
+
+    </table>
+    @Html.PagedListPager(Model, page => Url.Action("Index", new
+{
+    page,
+    searchBy = Request.QueryString["searchBy"],
+    search = Request.QueryString["search"],
+    sortBy = Request["sortBy"]
+}),
+new PagedListRenderOptions() { Display = PagedListDisplayMode.IfNeeded, DisplayPageCountAndCurrentLocation = true, DisplayItemSliceAndTotal = true })
+</div>
