@@ -15,6 +15,7 @@ namespace TennisApp.Models
 
         [Required(ErrorMessage = "É necessário preencher o {0}.")]
         [StringLength(200, MinimumLength = 1, ErrorMessage = "O {0} deve ter entre {2} e {1} caracteres.")]
+        [DataType(DataType.MultilineText)]
         public string Texto { get; set; }
 
         [DataType(DataType.Date)]

@@ -1,1 +1,5 @@
 ﻿DBCC CHECKIDENT ('[Categorias]', RESEED, 0)
+DBCC CHECKIDENT ('[Comentarios]', RESEED, 0)
+DBCC CHECKIDENT ('[Noticias]', RESEED, 0)
+DBCC CHECKIDENT ('[Utilizadors]', RESEED, 0)
+DBCC CHECKIDENT ('[NoticiaCategorias]', RESEED, 0)

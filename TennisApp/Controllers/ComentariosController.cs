@@ -11,6 +11,7 @@ using System.Web.Mvc;
 using TennisApp.Models;
 using PagedList;
 using PagedList.Mvc;
+using Microsoft.AspNet.Identity;
 
 namespace TennisApp.Controllers
 {
@@ -18,6 +19,47 @@ namespace TennisApp.Controllers
     public class ComentariosController : Controller
     {
         private ApplicationDbContext db = new ApplicationDbContext();
+
+        /// adiciona um comentário
+        [HttpPost]
+        [ValidateInput(false)]
+        [ValidateAntiForgeryToken]
+        public ActionResult AddComment(string comentario, int iDnoticiaNova)
+        {
+
+            if (comentario != "")
+            {
+                StringBuilder sbComentarios = new StringBuilder();
+                sbComentarios.Append(HttpUtility.HtmlEncode(comentario));
+
+                sbComentarios.Replace("&lt;b&gt;", "<b>");
+                sbComentarios.Replace("&lt;/b&gt;", "</b>");
+                sbComentarios.Replace("&lt;u&gt;", "<u>");
+                sbComentarios.Replace("&lt;/u&gt;", "</u>");
+                sbComentarios.Replace("\r\n", "<br />");
+
+                Comentario novoComentario = new Comentario();
+
+                // adicionar dados ao obj que vai levar os dados para a BD
+                novoComentario.Noticia.IdNoticia = iDnoticiaNova;
+                novoComentario.Criador.Nome = User.Identity.GetUserId();
+                novoComentario.DataComentario = DateTime.Now;
+                novoComentario.Texto = comentario;
+                novoComentario.Visivel = true;
+
+                if (ModelState.IsValid)
+                {
+                    db.Comentarios.Add(novoComentario);
+                    db.SaveChanges();
+                    TempData["Create"] = "Comentário adicionado";
+                }
+                else
+                {
+                    TempData["Error"] = "Comentário inválido";
+                }
+            }
+            return RedirectToAction("Details", "News", new { Id = iDnoticiaNova });
+        }
 
         // GET: Comentarios
         [AllowAnonymous]
@@ -57,42 +99,6 @@ namespace TennisApp.Controllers
                     break;
             }
             return View(comentarios.ToPagedList(page ?? 1, 3));
-
-            /*
-            //Outra maneira de implementar search
-            DateTime dataComentario = new DateTime();
-            if (dataComentarioString == null)
-            {
-                dataComentario = new DateTime(1, 1, 1);
-            }
-            else
-            {
-                if (dataComentarioString != "")
-                {
-                    dataComentario = Convert.ToDateTime(dataComentarioString);
-                }
-            }
-            //DateTime dataComentario = DateTime.ParseExact(dataComentarioString, "dd-MM-yyyy", CultureInfo.InvariantCulture);
-            var comentarioList = new List<DateTime>();
-            var comentariosQry = from d in db.Comentarios orderby d.DataComentario select d.DataComentario;
-
-            comentarioList.AddRange(comentariosQry.Distinct());
-            ViewBag.dataComentarioString = new SelectList(comentarioList);
-
-            var comentarios = from c in db.Comentarios select c;
-
-            if (!String.IsNullOrEmpty(searchString))
-            {
-                comentarios = comentarios.Where(s => s.Criador.Nome.Contains(searchString));
-            }
-
-            if (!String.IsNullOrEmpty(dataComentarioString))
-            {
-                comentarios = comentarios.Where(x => x.DataComentario == dataComentario);
-            }
-
-            return View(comentarios);
-            */
         }
 
         // GET: Comentarios/Details/5
@@ -101,12 +107,14 @@ namespace TennisApp.Controllers
         {
             if (id == null)
             {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+                TempData["Error"] = "Comentário inválido";
+                return RedirectToAction("Index");
             }
             Comentario comentario = db.Comentarios.Find(id);
             if (comentario == null)
             {
-                return HttpNotFound();
+                TempData["Error"] = "Comentário inválido";
+                return RedirectToAction("Index");
             }
             return View(comentario);
         }
@@ -143,6 +151,7 @@ namespace TennisApp.Controllers
             {
                 db.Comentarios.Add(comentario);
                 db.SaveChanges();
+                TempData["Create"] = "" + comentario.Criador.Nome;
                 return RedirectToAction("Index");
             }
 
@@ -158,12 +167,14 @@ namespace TennisApp.Controllers
         {
             if (id == null)
             {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+                TempData["Error"] = "Comentário inválido";
+                return RedirectToAction("Index");
             }
             Comentario comentario = db.Comentarios.Find(id);
             if (comentario == null)
             {
-                return HttpNotFound();
+                TempData["Error"] = "Comentário inválido";
+                return RedirectToAction("Index");
             }
             ViewBag.CriadorFK = new SelectList(db.Utilizadores, "IdUtilizador", "Nome", comentario.CriadorFK);
             ViewBag.NoticiaFK = new SelectList(db.Noticias, "IdNoticia", "Titulo", comentario.NoticiaFK);
@@ -194,6 +205,7 @@ namespace TennisApp.Controllers
             {
                 db.Entry(comentario).State = EntityState.Modified;
                 db.SaveChanges();
+                TempData["Edit"] = "" + comentario.Criador.Nome;
                 return RedirectToAction("Index");
             }
             ViewBag.CriadorFK = new SelectList(db.Utilizadores, "IdUtilizador", "Nome", comentario.CriadorFK);
@@ -207,12 +219,14 @@ namespace TennisApp.Controllers
         {
             if (id == null)
             {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+                TempData["Error"] = "Comentário inválido";
+                return RedirectToAction("Index");
             }
             Comentario comentario = db.Comentarios.Find(id);
             if (comentario == null)
             {
-                return HttpNotFound();
+                TempData["Error"] = "Comentário inválido";
+                return RedirectToAction("Index");
             }
             return View(comentario);
         }
@@ -226,6 +240,7 @@ namespace TennisApp.Controllers
             Comentario comentario = db.Comentarios.Find(id);
             db.Comentarios.Remove(comentario);
             db.SaveChanges();
+            TempData["Delete"] = comentario.Criador.Nome;
             return RedirectToAction("Index");
         }
 
@@ -238,4 +253,5 @@ namespace TennisApp.Controllers
             base.Dispose(disposing);
         }
     }
+
 }

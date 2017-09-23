@@ -27,6 +27,7 @@ namespace TennisApp.Models
         [DisplayName("Descrição")]
         [Required(ErrorMessage = "É necessária uma {0}.")]
         [StringLength(10000, MinimumLength = 10, ErrorMessage = "A {0} deve ter entre {2} e {1} caracteres.")]
+        [DataType(DataType.MultilineText)]
         public string Descricao { get; set; }
 
         [Required(ErrorMessage = "É necessário referenciar uma Imagem.")]

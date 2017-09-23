@@ -3,7 +3,20 @@
 @{
     ViewBag.Title = "Remover";
 }
-
+@if (TempData["Delete"] != null)
+{
+    <div class="alert alert-success">
+        <strong>Notícia editada!</strong>
+        A notícia " @TempData["Delete"].ToString() " foi eliminada com sucesso.
+    </div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">
+        <strong>Erro!</strong>
+        Ocorreu um erro: @TempData["Error"].ToString() .
+    </div>
+}
 <h2>Remover</h2>
 
 <h3>Tem a certeza que pretende remover?</h3>

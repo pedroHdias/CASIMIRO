@@ -63,14 +63,16 @@ namespace TennisApp.Controllers
         {
             if (id == null)
             {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-               
+                TempData["Error"] = "Categoria inválida";
+                return RedirectToAction("Index");
+
             }
             Categoria categoria = db.Categorias.Find(id);
             if (categoria == null)
             {
 
-                return HttpNotFound();
+                TempData["Error"] = "Categoria inválida";
+                return RedirectToAction("Index");
             }
             return View(categoria);
         }
@@ -110,6 +112,7 @@ namespace TennisApp.Controllers
             {
                 db.Categorias.Add(categoria);
                 db.SaveChanges();
+                TempData["Create"] = "" + categoria.Nome;
                 return RedirectToAction("Index");
             }
 
@@ -123,12 +126,14 @@ namespace TennisApp.Controllers
         {
             if (id == null)
             {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+                TempData["Error"] = "Categoria inválida";
+                return RedirectToAction("Index");
             }
             Categoria categoria = db.Categorias.Find(id);
             if (categoria == null)
             {
-                return HttpNotFound();
+                TempData["Error"] = "Categoria inválida";
+                return RedirectToAction("Index");
             }
             return View(categoria);
         }
@@ -160,6 +165,7 @@ namespace TennisApp.Controllers
             {
                 db.Entry(categoria).State = EntityState.Modified;
                 db.SaveChanges();
+                TempData["Edit"] = "" + categoria.Nome;
                 return RedirectToAction("Index");
             }
             return View(categoria);
@@ -171,12 +177,14 @@ namespace TennisApp.Controllers
         {
             if (id == null)
             {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+                TempData["Error"] = "Categoria inválida";
+                return RedirectToAction("Index");
             }
             Categoria categoria = db.Categorias.Find(id);
             if (categoria == null)
             {
-                return HttpNotFound();
+                TempData["Error"] = "Categoria inválida";
+                return RedirectToAction("Index");
             }
             return View(categoria);
         }
@@ -190,6 +198,7 @@ namespace TennisApp.Controllers
             Categoria categoria = db.Categorias.Find(id);
             db.Categorias.Remove(categoria);
             db.SaveChanges();
+            TempData["Delete"] = categoria.Nome;
             return RedirectToAction("Index");
         }
 

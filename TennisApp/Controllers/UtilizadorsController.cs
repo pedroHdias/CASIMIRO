@@ -61,12 +61,14 @@ namespace TennisApp.Controllers
         {
             if (id == null)
             {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+                TempData["Error"] = "Utilizador inválido";
+                return RedirectToAction("Index");
             }
             Utilizador utilizador = db.Utilizadores.Find(id);
             if (utilizador == null)
             {
-                return HttpNotFound();
+                TempData["Error"] = "Utilizador inválido";
+                return RedirectToAction("Index");
             }
             return View(utilizador);
         }
@@ -98,6 +100,7 @@ namespace TennisApp.Controllers
             {
                 db.Utilizadores.Add(utilizador);
                 db.SaveChanges();
+                TempData["Create"] = "" + utilizador.Nome;
                 return RedirectToAction("Index");
             }
 
@@ -111,12 +114,14 @@ namespace TennisApp.Controllers
         {
             if (id == null)
             {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+                TempData["Error"] = "Utilizador inválido";
+                return RedirectToAction("Index");
             }
             Utilizador utilizador = db.Utilizadores.Find(id);
             if (utilizador == null)
             {
-                return HttpNotFound();
+                TempData["Error"] = "Utilizador inválido";
+                return RedirectToAction("Index");
             }
             return View(utilizador);
         }
@@ -136,10 +141,12 @@ namespace TennisApp.Controllers
             string strUsername = HttpUtility.HtmlEncode(utilizador.UserName);
             utilizador.UserName = strUsername;
 
+
             if (ModelState.IsValid)
             {
                 db.Entry(utilizador).State = EntityState.Modified;
                 db.SaveChanges();
+                TempData["Edit"] = "" + utilizador.Nome;
                 return RedirectToAction("Index");
             }
             return View(utilizador);
@@ -151,12 +158,14 @@ namespace TennisApp.Controllers
         {
             if (id == null)
             {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+                TempData["Error"] = "Utilizador inválido";
+                return RedirectToAction("Index");
             }
             Utilizador utilizador = db.Utilizadores.Find(id);
             if (utilizador == null)
             {
-                return HttpNotFound();
+                TempData["Error"] = "Utilizador inválido";
+                return RedirectToAction("Index");
             }
             return View(utilizador);
         }
@@ -170,6 +179,7 @@ namespace TennisApp.Controllers
             Utilizador utilizador = db.Utilizadores.Find(id);
             db.Utilizadores.Remove(utilizador);
             db.SaveChanges();
+            TempData["Delete"] = utilizador.Nome;
             return RedirectToAction("Index");
         }
 

@@ -35,132 +35,70 @@
     </div>
 }
 
-<h2>Lista de Notícias</h2>
+<h2>Notícias</h2>
 
 <div class="container">
-    <div class="row">
-        @if (User.IsInRole("Administrador"))
-        {
-            <div class="row" style="font-size:20px;">
-                <div class="col-md-12">
-                    <label style="float:right; margin-top: 5px; margin-right:85px;">@Html.ActionLink("Criar uma notícia", "Create")</label>
+    <div class="row" style="padding:5px;">
+        <div class="col col-md-9" style="font-size:14px;">
+            @using (Html.BeginForm("Index", "Noticias", FormMethod.Get))
+            {
+                <div class="row justify-content-center my-3">
+                    <label style="float:left; margin-right:10px;">Procurar por:</label>
+                    <text>Autor</text> @Html.RadioButton("searchBy", "Autor", false)
+                    <text>Título</text> @Html.RadioButton("searchBy", "Titulo", false)
+                    <text>Relevância</text> @Html.RadioButton("searchBy", "Relevancia", false)
+                    <text>Categoria:</text> @Html.DropDownList("categoriaString", "Qualquer")
                 </div>
-            </div>
-        }
-        @using (Html.BeginForm("Index", "Noticias", FormMethod.Get))
-        {
-            <label style="float:left; margin-top: 5px; margin-right:85px;">Procurar por:</label>
-            @Html.RadioButton("searchBy", "Autor", true) <text>Autor</text>
-            @Html.RadioButton("searchBy", "Titulo", true) <text>Título</text>
-            @Html.RadioButton("searchBy", "Texto", true) <text>Texto</text>
-            <br />
-            @Html.TextBox("search")  <input type="submit" value="Procurar" />
-        }
-    </div>
-
-
-    @if (Model.Count() == 0)
-    {
-        <label style="float:right; margin-top: 5px; margin-right:85px;">Não foi encontrado o que procura.</label>
-    }
-    @foreach (var item in Model)
-    {
-        <div class="row">
-            <img src=@Html.DisplayFor(modelItem => item.Foto) class="col-md-2" />
-            <div class="col-md-10" style="display:block; padding:5px; font-size:20px;">
-                <p class="paragComLimite">
-                    <b style="color:#00A3C0">Categorias (erro)</b>
-                    @Html.DisplayFor(modelItem => item.Titulo)
-                </p>
-                <p style="font-size:14px;">@Html.DisplayFor(modelItem => item.DataPublicacao)</p>
-            </div>
+                <div class="row">
+                    @Html.TextBox("search")  <input type="submit" value="Procurar" />
+                </div>
+            }
         </div>
-    }
-
-
-
-    <table class="table">
-        <tr>
-            <th>
-                @Html.ActionLink("Autor", "Index", new { sortBy = ViewBag.SortAutorParameter, searchBy = Request.QueryString["searchBy"], search = Request["search"] })
-            </th>
-            <th>
-                @Html.ActionLink("Titulo", "Index", new { sortBy = ViewBag.SortTituloParameter, searchBy = Request.QueryString["searchBy"], search = Request["search"] })
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.First().Descricao)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.First().Foto)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.First().TipoImagem)
-            </th>
-            <th>
-                @Html.ActionLink("Relevância", "Index", new { sortBy = ViewBag.SortRelevanciaParameter, searchBy = Request.QueryString["searchBy"], search = Request["search"] })
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.First().DataPublicacao)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.First().DataLimiteVisualizacao)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.First().Visivel)
-            </th>
-            <th></th>
-        </tr>
+        <div class="col-12 col-lg-2" style="font-size:14px;">
+            @if (User.IsInRole("Administrador"))
+            {
+                <label>@Html.ActionLink("Criar uma notícia", "Create")</label>
+            }
+        </div>
+    </div>
+    <div class="row" style="padding:5px;">
         @if (Model.Count() == 0)
         {
-            <tr>
-                <td colspan="4"> Não foi encontrado o que procura.</td>
-            </tr>
+            <label style="float:right; margin-top: 5px; margin-right:85px;">Não foi encontrado o que procura.</label>
         }
         @foreach (var item in Model)
         {
-            <tr>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Criador.Nome)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Titulo)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Descricao)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Foto)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.TipoImagem)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Relevancia)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.DataPublicacao)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.DataLimiteVisualizacao)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Visivel)
-                </td>
-                <td>
-                    @Html.ActionLink("Editar", "Edit", new { id = item.IdNoticia }) |
-                    @Html.ActionLink("Detalhes", "Details", new { id = item.IdNoticia }) |
-                    @Html.ActionLink("Remover", "Delete", new { id = item.IdNoticia })
-                </td>
-            </tr>
-        }
+            <div class="row">
+                <a href="/Noticias/Details/@item.IdNoticia" target="_blank">
+                    @{string imgSRC = "/Imagens/" + item.Foto;
+                        <img src="@imgSRC" alt="Sample Image" class="col-md-2 col-xs-12" />
+                    }
+                </a>
+                <div class="col-md-10" style="display:block; padding:5px; font-size:20px;">
+                    <p class="paragComLimite">
+                        <div class="form-group">
+                            <a href="/Noticias/Details/@item.IdNoticia" target="_blank">
+                                <b style="color:#00A3C0"> @Html.DisplayFor(modelItem => item.Titulo)</b>
+                            </a>
+                        </div>
+                        @foreach (var categoria in Model.Where(x => x.IdNoticia == item.IdNoticia).SelectMany(x => x.Categorias))
+                        {
+                            <label>[@categoria.Nome] </label>
+                        }
+                    </p>
+                    <p style="font-size:14px;">@Html.DisplayFor(modelItem => item.DataPublicacao) - Publicado por: @Html.DisplayFor(modelItem => item.Criador.Nome)</p>
+                </div>
+            </div>
+                        }
+    </div>
 
-    </table>
     @Html.PagedListPager(Model, page => Url.Action("Index", new
 {
     page,
     searchBy = Request.QueryString["searchBy"],
     search = Request.QueryString["search"],
-    sortBy = Request["sortBy"]
+    sortBy = Request["sortBy"],
+    categoriaString = Request["categoriaString"]
 }),
 new PagedListRenderOptions() { Display = PagedListDisplayMode.IfNeeded, DisplayPageCountAndCurrentLocation = true, DisplayItemSliceAndTotal = true })
 </div>

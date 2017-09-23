@@ -3,14 +3,27 @@
 @{
     ViewBag.Title = "Editar";
 }
-
+@if (TempData["Edit"] != null)
+{
+    <div class="alert alert-warning">
+        <strong>Notícia editada!</strong>
+        A notícia " @TempData["Edit"].ToString() " foi editada com sucesso.
+    </div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">
+        <strong>Erro!</strong>
+        Ocorreu um erro: @TempData["Error"].ToString() .
+    </div>
+}
 <h2>Editar</h2>
-
-
-@using (Html.BeginForm())
+<hr />
+<div class="container">
+@using (Html.BeginForm("Edit", "Noticias", FormMethod.Post, new { @class = "form-control", enctype = "multipart/form-data" }))
 {
     @Html.AntiForgeryToken()
-    
+
     <div class="form-horizontal">
         <h4>Notícia</h4>
         <hr />
@@ -28,7 +41,10 @@
         <div class="form-group">
             @Html.LabelFor(model => model.Descricao, htmlAttributes: new { @class = "control-label col-md-2" })
             <div class="col-md-10">
-                @Html.EditorFor(model => model.Descricao, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.TextAreaFor(model => model.Descricao, new { @id = "editor", htmlAttributes = new { @class = "form-control" } })
+                <script>
+                    CKEDITOR.replace('editor');
+                </script>
                 @Html.ValidationMessageFor(model => model.Descricao, "", new { @class = "text-danger" })
             </div>
         </div>
@@ -44,7 +60,7 @@
         <div class="form-group">
             @Html.LabelFor(model => model.TipoImagem, htmlAttributes: new { @class = "control-label col-md-2" })
             <div class="col-md-10">
-                @Html.EditorFor(model => model.TipoImagem, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.EditorFor(model => model.TipoImagem, "Tipo de Imagem", new { htmlAttributes = new { @class = "form-control" } })
                 @Html.ValidationMessageFor(model => model.TipoImagem, "", new { @class = "text-danger" })
             </div>
         </div>
@@ -58,7 +74,7 @@
         </div>
 
         <div class="form-group">
-            @Html.LabelFor(model => model.DataPublicacao, htmlAttributes: new { @class = "control-label col-md-2" })
+            @Html.LabelFor(model => model.DataPublicacao, "Data de Publicação", htmlAttributes: new { @class = "control-label col-md-2" })
             <div class="col-md-10">
                 @Html.EditorFor(model => model.DataPublicacao, new { htmlAttributes = new { @class = "form-control" } })
                 @Html.ValidationMessageFor(model => model.DataPublicacao, "", new { @class = "text-danger" })
@@ -66,7 +82,7 @@
         </div>
 
         <div class="form-group">
-            @Html.LabelFor(model => model.DataLimiteVisualizacao, htmlAttributes: new { @class = "control-label col-md-2" })
+            @Html.LabelFor(model => model.DataLimiteVisualizacao, "Data Limite de Visualização", htmlAttributes: new { @class = "control-label col-md-2" })
             <div class="col-md-10">
                 @Html.EditorFor(model => model.DataLimiteVisualizacao, new { htmlAttributes = new { @class = "form-control" } })
                 @Html.ValidationMessageFor(model => model.DataLimiteVisualizacao, "", new { @class = "text-danger" })
@@ -74,7 +90,7 @@
         </div>
 
         <div class="form-group">
-            @Html.LabelFor(model => model.Visivel, htmlAttributes: new { @class = "control-label col-md-2" })
+            @Html.LabelFor(model => model.Visivel, "Visível", htmlAttributes: new { @class = "control-label col-md-2" })
             <div class="col-md-10">
                 <div class="checkbox">
                     @Html.EditorFor(model => model.Visivel)
@@ -83,12 +99,31 @@
             </div>
         </div>
 
+
         <div class="form-group">
-            @Html.LabelFor(model => model.CriadorFK, "CriadorFK", htmlAttributes: new { @class = "control-label col-md-2" })
+            @Html.LabelFor(model => model.CriadorFK, "Autor", htmlAttributes: new { @class = "control-label col-md-2" })
             <div class="col-md-10">
                 @Html.DropDownList("CriadorFK", null, htmlAttributes: new { @class = "form-control" })
                 @Html.ValidationMessageFor(model => model.CriadorFK, "", new { @class = "text-danger" })
             </div>
+        </div>
+        <div class="form-group">
+            @foreach (var categoria in Model.Categorias)
+            {
+                <label>
+                    <input type="checkbox" name="categorias" value="@categoria.IdCategoria" checked />@categoria.Nome
+                </label>
+            }
+            @if (ViewBag.Categorias != null)
+            {
+                foreach (var categoria in ViewBag.Categorias)
+                {
+                    <label>
+                        <input type="checkbox" name="categorias" value="@categoria.IdCategoria" /> @categoria.Nome
+                    </label>
+
+                }
+            }
         </div>
 
         <div class="form-group">
@@ -99,8 +134,11 @@
     </div>
 }
 
-<div>
+<div class="row">
     @Html.ActionLink("Voltar à lista", "Index")
+</div>
+
+
 </div>
 
 @section Scripts {

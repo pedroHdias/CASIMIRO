@@ -3,8 +3,21 @@
 @{
     ViewBag.Title = "Criar";
 }
-
-<h2>Criar</h2>
+@if (TempData["Create"] != null)
+{
+    <div class="alert alert-success">
+        <strong>Notícia criada!</strong>
+        A notícia " @TempData["Create"].ToString() " foi criada com sucesso.
+    </div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">
+        <strong>Erro!</strong>
+        Ocorreu um erro: @TempData["Error"].ToString() .
+    </div>
+}
+<h2>Criar Notícia</h2>
 
 
 @using (Html.BeginForm("Create", "Noticias", FormMethod.Post, new { @class = "form-control", enctype = "multipart/form-data" }))
@@ -12,8 +25,6 @@
     @Html.AntiForgeryToken()
 
     <div class="form-horizontal ">
-        <h4>Notícia</h4>
-        <hr />
         @Html.ValidationSummary(true, "", new { @class = "text-danger" })
         <div class="form-group">
             @Html.LabelFor(model => model.Titulo, htmlAttributes: new { @class = "control-label col-md-2" })
@@ -26,7 +37,10 @@
         <div class="form-group">
             @Html.LabelFor(model => model.Descricao, htmlAttributes: new { @class = "control-label col-md-2" })
             <div class="col-md-10">
-                @Html.TextAreaFor(model => model.Descricao,5,150, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.TextAreaFor(model => model.Descricao, new { @id = "editor", htmlAttributes = new { @class = "form-control" } })
+                <script>
+                    CKEDITOR.replace('editor');
+                </script>
                 @Html.ValidationMessageFor(model => model.Descricao, "", new { @class = "text-danger" })
             </div>
         </div>
@@ -80,27 +94,14 @@
                 </div>
             </div>
         </div>
-
-        @*Não preciso desta 'informação', pois o dono da notício é o User autenticado
-
-            <div class="form-group">
-                @Html.LabelFor(model => model.CriadorFK, "CriadorFK", htmlAttributes: new { @class = "control-label col-md-2" })
-                <div class="col-md-10">
-                    @Html.DropDownList("CriadorFK", null, htmlAttributes: new { @class = "form-control" })
-                    @Html.ValidationMessageFor(model => model.CriadorFK, "", new { @class = "text-danger" })
-                </div>
-            </div>*@
-
-        <hr />
-
-        @foreach (var categoria in ViewBag.Categorias)
-        {
-            <label>
-                <input type="checkbox" name="categorias" value="@categoria.IdCategoria" />@categoria.Nome
-            </label>
-        }
-        <hr />
-
+        <div class="form-group">
+            @foreach (var categoria in ViewBag.Categorias)
+            {
+                <label>
+                    <input type="checkbox" name="categorias" value="@categoria.IdCategoria" />@categoria.Nome
+                </label>
+            }
+        </div>
         <div class="form-group">
             <div class="col-md-offset-2 col-md-10">
                 <input type="submit" value="Criar" class="btn btn-default" />

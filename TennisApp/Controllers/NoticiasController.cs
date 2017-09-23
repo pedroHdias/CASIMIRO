@@ -10,6 +10,7 @@ using System.Web.Mvc;
 using TennisApp.Models;
 using PagedList;
 using PagedList.Mvc;
+using System.IO;
 
 namespace TennisApp.Controllers
 {
@@ -18,25 +19,20 @@ namespace TennisApp.Controllers
     {
         private ApplicationDbContext db = new ApplicationDbContext();
 
-        public IList<Noticia> GetNoticias()
-        {
-            return db.Noticias.ToList();
-        }
-
-        public IList<Categoria> GetCategoriasNoticias(Noticia noticia)
-        {
-            List<Categoria> categorias = db.Noticias.Where(x => x.IdNoticia == noticia.IdNoticia).SelectMany(x => x.Categorias).ToList();
-            return categorias;
-        }
-
         // GET: Noticias
         [AllowAnonymous]
         [OutputCache(Duration = 10)]
-        public ActionResult Index(string searchBy, string search, int? page, string sortBy)
+        public ActionResult Index(string searchBy, string search, int? page, string sortBy, string categoriaString)
         {
             ViewBag.SortAutorParameter = string.IsNullOrEmpty(sortBy) ? "Autor desc" : "";
             ViewBag.SortTituloParameter = sortBy == "Titulo" ? "Titulo desc" : "Titulo";
             ViewBag.SortRelevanciaParameter = sortBy == "Relevancia" ? "Relevancia desc" : "Relevancia";
+
+            var categoriaList = new List<String>();
+            var categoriasQry = from d in db.Categorias orderby d.Nome select d.Nome;
+
+            categoriaList.AddRange(categoriasQry.Distinct());
+            ViewBag.categoriaString = new SelectList(categoriaList);
 
             var noticias = db.Noticias.AsQueryable();
 
@@ -51,6 +47,12 @@ namespace TennisApp.Controllers
             else if (searchBy == "Relevancia")
             {
                 noticias = noticias.Where(x => x.Relevancia.ToString() == search || search == null);
+            }
+            else if (!String.IsNullOrEmpty(categoriaString))
+            {
+                Categoria cat = new Categoria();
+                cat.Nome = categoriaString;
+                noticias = noticias.Where(x => x.Categorias.Equals(cat));
             }
             else
             {
@@ -88,14 +90,12 @@ namespace TennisApp.Controllers
             {
                 TempData["Error"] = "Noticia inválida";
                 return RedirectToAction("Index");
-                //return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
             Noticia noticia = db.Noticias.Find(id);
             if (noticia == null)
             {
                 TempData["Error"] = "Noticia inválida";
                 return RedirectToAction("Index");
-                //return HttpNotFound();
             }
             return View(noticia);
         }
@@ -106,7 +106,6 @@ namespace TennisApp.Controllers
         {
             // obtem a lista de Categorias");
             ViewBag.Categorias = db.Categorias.OrderBy(c => c.Nome);
-
             return View();
         }
 
@@ -116,32 +115,150 @@ namespace TennisApp.Controllers
         [HttpPost]
         [ValidateInput(false)]
         [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "Titulo,Descricao,Foto,TipoImagem,Relevancia,DataPublicacao,DataLimiteVisualizacao,Visivel,CriadorFK")] Noticia noticia, 
+        public ActionResult Create([Bind(Include = "Titulo,Descricao,Foto,TipoImagem,Relevancia,DataPublicacao,DataLimiteVisualizacao,Visivel,CriadorFK")] Noticia noticia,
             string[] categorias, HttpPostedFile fotografia)
         {
-
             if (categorias != null)
             {
                 if (fotografia != null)
                 {
+                    //Selecciona o último id da tabela de ingredientes e incrementa 1
+                    var NoticiaID = db.Noticias.OrderByDescending(d => d.IdNoticia).FirstOrDefault().IdNoticia + 1;
 
-                    // guardar a Fotografia
-                    //....
+                    // atribui o novo ID ao objeto que veio da View
+                    noticia.IdNoticia = NoticiaID;
 
+                    //Recolhe a data actual
+                    noticia.DataPublicacao = DateTime.Now;
+
+                    string pic = System.IO.Path.GetFileName(fotografia.FileName);
+                    noticia.Foto = pic;
+                    //guardar caminho apra a foto
+                    string path = System.IO.Path.Combine(Server.MapPath("/Imagens"), pic);
+
+                    fotografia.SaveAs(path);// file is uploaded
+
+                    // save the image path path to the database or you can send image
+                    // directly to database
+                    // in-case if you want to store byte[] ie. for DB
+                    using (MemoryStream ms = new MemoryStream())
+                    {
+                        fotografia.InputStream.CopyTo(ms);
+                        byte[] array = ms.GetBuffer();
+                    }
 
                     //atribuir as categorias à notícia
                     // iterar pelo array de categorias e criar uma lista de categorias
-                    var listaCategorias=new List < Categoria>();
+                    var listaCategorias = new List<Categoria>();
                     foreach (var cat in categorias)
                     {
                         listaCategorias.Add(db.Categorias.Find(cat));
                     }
                     noticia.Categorias = listaCategorias;
 
-
                     // atribuir o ID do dono da notícia à notícia
                     noticia.CriadorFK = db.Utilizadores.Where(u => u.UserName.Equals(User.Identity.Name)).FirstOrDefault().IdUtilizador;
 
+                    StringBuilder sbNoticias = new StringBuilder();
+                    sbNoticias.Append(HttpUtility.HtmlEncode(noticia.Descricao));
+
+                    //evitar ataques SQL injection
+                    sbNoticias.Replace("&lt;b&gt;", "<b>");
+                    sbNoticias.Replace("&lt;/b&gt;", "</b>");
+                    sbNoticias.Replace("&lt;u&gt;", "<u>");
+                    sbNoticias.Replace("&lt;/u&gt;", "</u>");
+                    sbNoticias.Replace("\r\n", "<br />");
+
+                    noticia.Descricao = sbNoticias.ToString();
+
+                    string strTitulo = HttpUtility.HtmlEncode(noticia.Titulo);
+                    noticia.Titulo = strTitulo;
+
+                    if (ModelState.IsValid)
+                    {
+                        db.Noticias.Add(noticia);
+                        db.SaveChanges();
+                        TempData["Create"] = "" + noticia.Titulo;
+                        return RedirectToAction("Index");
+                    }
+                }
+                else
+                {
+                    TempData["Error"] = "Não adicionou uma Imagem à Notícia";
+                }
+            }
+            else
+            {
+                TempData["Error"] = "Não slecionou pelo menos uma Categoria para a Notícia";
+            }
+            // obtem a lista de Categorias;
+            ViewBag.Categorias = db.Categorias.OrderBy(c => c.Nome);
+            return View(noticia);
+        }
+
+        // GET: Noticias/Edit/5
+        [ValidateInput(false)]
+        [Authorize(Roles = "Administrador")]
+        public ActionResult Edit(int? id)
+        {
+            if (id == null)
+            {
+                TempData["Error"] = "Noticia inválida";
+                return RedirectToAction("Index");
+            }
+            Noticia noticia = db.Noticias.Find(id);
+            if (noticia == null)
+            {
+                TempData["Error"] = "Notícia inválida";
+                return RedirectToAction("Index");
+            }
+            ViewBag.CriadorFK = new SelectList(db.Utilizadores, "IdUtilizador", "Nome", noticia.CriadorFK);
+            return View(noticia);
+        }
+
+        // POST: Noticias/Edit/5
+        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
+        // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
+        [HttpPost]
+        [ValidateInput(false)]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Administrador")]
+        public ActionResult Edit([Bind(Include = "IdNoticia,Titulo,Descricao,Foto,TipoImagem,Relevancia,DataPublicacao,DataLimiteVisualizacao,Visivel,CriadorFK")] Noticia noticia,
+             string[] categorias, HttpPostedFile fotografia)
+        {
+            if (categorias != null)
+            {
+                if (fotografia != null)
+                {
+                    //Se existir uma foto para esta receita, apaga-a
+                    if (System.IO.File.Exists("/Imagens" + noticia.Foto))
+                    {
+                        System.IO.File.Delete("/Imagens" + noticia.Foto);
+                    }
+                    //Adiciona uma nova
+                    string pic = System.IO.Path.GetFileName(fotografia.FileName);
+                    noticia.Foto = pic;
+                    string path = System.IO.Path.Combine(Server.MapPath("/Imagens"), pic);
+
+                    fotografia.SaveAs(path);// file is uploaded
+
+                    // save the image path path to the database or you can send image
+                    // directly to database
+                    // in-case if you want to store byte[] ie. for DB
+                    using (MemoryStream ms = new MemoryStream())
+                    {
+                        fotografia.InputStream.CopyTo(ms);
+                        byte[] array = ms.GetBuffer();
+                    }
+
+                    //atribuir as categorias à notícia
+                    // iterar pelo array de categorias e criar uma lista de categorias
+                    var listaCategorias = new List<Categoria>();
+                    foreach (var cat in categorias)
+                    {
+                        listaCategorias.Add(db.Categorias.Find(cat));
+                    }
+                    noticia.Categorias = listaCategorias;
 
 
                     StringBuilder sbNoticias = new StringBuilder();
@@ -160,84 +277,23 @@ namespace TennisApp.Controllers
 
                     if (ModelState.IsValid)
                     {
-                        db.Noticias.Add(noticia);
+                        db.Entry(noticia).State = EntityState.Modified;
                         db.SaveChanges();
-                        TempData["Message"] = "" + noticia.Titulo;
+                        TempData["Edit"] = "" + noticia.Titulo;
                         return RedirectToAction("Index");
                     }
                 }
-                else  
-            {
-                // preparar msg de erro fotografia
+                else
+                {
+                    TempData["Error"] = "Não adicionou uma Imagem à Notícia";
+                }
             }
-        }
             else
             {
-                // preparar msg de erro Categoria
+                TempData["Error"] = "Não slecionou pelo menos uma Categoria para a Notícia";
             }
-
-            // obtem a lista de Categorias");
+            // obtem a lista de Categorias;
             ViewBag.Categorias = db.Categorias.OrderBy(c => c.Nome);
-            return View(noticia);
-        }
-
-
-
-
-
-
-        // GET: Noticias/Edit/5
-        [ValidateInput(false)]
-        [Authorize(Roles = "Administrador")]
-        public ActionResult Edit(int? id)
-        {
-            if (id == null)
-            {
-                TempData["Error"] = "Noticia inválida";
-                return RedirectToAction("Index");
-                //return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
-            Noticia noticia = db.Noticias.Find(id);
-            if (noticia == null)
-            {
-                TempData["Error"] = "Notícia inválida";
-                return RedirectToAction("Index");
-                //return HttpNotFound();
-            }
-            ViewBag.CriadorFK = new SelectList(db.Utilizadores, "IdUtilizador", "Nome", noticia.CriadorFK);
-            return View(noticia);
-        }
-
-        // POST: Noticias/Edit/5
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateInput(false)]
-        [ValidateAntiForgeryToken]
-        [Authorize(Roles = "Administrador")]
-        public ActionResult Edit([Bind(Include = "IdNoticia,Titulo,Descricao,Foto,TipoImagem,Relevancia,DataPublicacao,DataLimiteVisualizacao,Visivel,CriadorFK")] Noticia noticia)
-        {
-            StringBuilder sbNoticias = new StringBuilder();
-            sbNoticias.Append(HttpUtility.HtmlEncode(noticia.Descricao));
-
-            sbNoticias.Replace("&lt;b&gt;", "<b>");
-            sbNoticias.Replace("&lt;/b&gt;", "</b>");
-            sbNoticias.Replace("&lt;u&gt;", "<u>");
-            sbNoticias.Replace("&lt;/u&gt;", "</u>");
-            sbNoticias.Replace("\r\n", "<br />");
-
-            noticia.Descricao = sbNoticias.ToString();
-
-            string strTitulo = HttpUtility.HtmlEncode(noticia.Titulo);
-            noticia.Titulo = strTitulo;
-
-            if (ModelState.IsValid)
-            {
-                db.Entry(noticia).State = EntityState.Modified;
-                db.SaveChanges();
-                TempData["Edit"] = "" + noticia.Titulo;
-                return RedirectToAction("Index");
-            }
             ViewBag.CriadorFK = new SelectList(db.Utilizadores, "IdUtilizador", "Nome", noticia.CriadorFK);
             return View(noticia);
         }
@@ -283,19 +339,5 @@ namespace TennisApp.Controllers
             }
             base.Dispose(disposing);
         }
-
-        //para chamar na view
-        #region Helpers
-
-        public IList<Noticia> GetNoticia()
-        {
-            return GetNoticias();
-        }
-
-        public IList<Categoria> GetCategoriasNoticia(Noticia noticia)
-        {
-            return GetCategoriasNoticias(noticia);
-        }
-        #endregion
     }
 }

@@ -1,90 +1,174 @@
-﻿@model TennisApp.Models.Noticia
+﻿@using Microsoft.AspNet.Identity
+@model TennisApp.Models.Noticia
 
 @{
     ViewBag.Title = "Detalhes";
+    ViewBag.user = User.Identity.GetUserName();
 }
+<script src="~/Scripts/jquery-1.10.2.js"></script>
 
-<h2>Detalhes</h2>
+<script>
+    $(document).ready(function () {
 
-<div>
-    <h4>Notícia</h4>
+        //Limita quantos caracteres que a textarea pode ter
+        $('#comentario').keypress(function (event) {
+            var max = 500;
+            var len = $(this).val().length;
+
+            if (event.which < 0x20) {
+                // e.which < 0x20, then it's not a printable character
+                // e.which === 0 - Not a character
+                return; // Do nothing
+            }
+
+            if (len >= max) {
+                event.preventDefault();
+            }
+
+        });
+
+        //Mostra quantos caracteres faltam
+        $('#comentario').keyup(function (event) {
+            var max = 500;
+            var len = $(this).val().length;
+            var char = max - len;
+
+            $('#charNum').text('Faltam ' + char + ' caracteres');
+
+        });
+
+        //Limita o número de linhas que a textarea pode ter e mostra quantas linhas faltam
+        $('#comentario').keydown(function (e) {
+
+            var maxLines = 20;
+            var numLines = $(this).val().split("\n").length;
+
+            $('#linesUsed').text('Máximo de 20 linhas:' + numLines);
+
+            if (e.keyCode == 13 && numLines >= maxLines) {
+                return false;
+            }
+        });
+
+    });
+</script>
+
+<div class="container-base">
+    <div class="row">
+        <div class="col-md-12" style="padding-top:10px;">
+            <justify><h2>@Html.DisplayFor(model => model.Titulo)</h2></justify>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            @Html.DisplayFor(model => model.DataPublicacao) - Publicado por: @Html.DisplayFor(model => model.Criador.Nome)
+        </div>
+    </div>
     <hr />
-    <dl class="dl-horizontal">
-        <dt>
-            @Html.DisplayNameFor(model => model.Criador.Nome)
-        </dt>
+    <div class="row">
+        <div class="col-md-12">
+            @{string imgSRC = "/Imagens/" + Model.Foto;
+                <center><img src="@imgSRC" alt="Sample Image" style="height:auto; width:600px;" /></center>
+            }
+        </div>
+    </div>
 
-        <dd>
-            @Html.DisplayFor(model => model.Criador.Nome)
-        </dd>
+    <div class="row">
+        <div class="col-md-12" style="text-align:justify; padding-top:20px;">
+            @Html.Raw(Model.Descricao)
+        </div>
+    </div>
+    <div class="row" style="padding-left:10px; padding-right:10px">
+        <div class="col-md-6" style="text-align:left; font-size:16px;">
+            @Html.ActionLink("Voltar atrás", "Index")
+        </div>
+        @if (User.IsInRole("Administrador"))
+            {
+            <div class="col-md-6" style="text-align:right; font-size:16px;">
+                @Html.ActionLink("Editar", "Edit", new { id = Model.IdNoticia })
+            </div>
+        }
+    </div>
 
-        <dt>
-            @Html.DisplayNameFor(model => model.Titulo)
-        </dt>
+    <div class="row">
+        <div class="col-md-12">
+            <center><h3>Comentários</h3></center>
+        </div>
+        <!-- Criar um comentario-->
+        @if (User.Identity.IsAuthenticated)
+        {
+                using (Html.BeginForm("AddComment", "Comentarios", FormMethod.Post, new { enctype = "multipart/form-data" }))
+                {
+                @Html.AntiForgeryToken()
+                @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                @Html.HiddenFor(model => model.IdNoticia)
+                <div class="row">
+                    <div class="col-md-12">
+                        @Html.Label("Comentário", htmlAttributes: new { @class = "control-label col-md-2" }) <br />
+                        <TEXTAREA id="comentario" name="comentario" rows="20" cols="80" style="resize:none"></TEXTAREA>
+                        <script>
+                            CKEDITOR.replace('comentario');
+                        </script>
+                        <div id="charNum" class="col-md-3" style="float:left;">Faltam 500 caracteres</div>
+                        <div id="linesUsed" class="col-md-3" style="float:left;">Máximo de 20 linhas: 0</div>
+                    </div>
+                    <div class="col-md-12" style="text-align:right;">
+                        <input type="submit" value="Adicionar comentário" class="btn btnCriar" />
+                    </div>
+                </div>
 
-        <dd>
-            @Html.DisplayFor(model => model.Titulo)
-        </dd>
+                }
+                }
+        <!-- Mostrar comentarios-->
+                <div class="col-md-12">
+                    @foreach (var c in Model.Comentarios.OrderByDescending(cc => cc.DataComentario))
+                    {
+                        <div class="col-md-12">
+                            <label style="font-weight:bold; font-size:16px;">@c.Criador.Nome</label>
+                            <label style="color:black"> - @c.DataComentario</label>  <br />
+                            @if (c.Criador.Equals(User.Identity.GetUserId()) || User.IsInRole("Administrador"))
+                    {
+                                <button type="button" class="btn btnCriar" data-toggle="modal" data-target="#myModal" style="float:right; border:0px;">X</button>
+                                using (Html.BeginForm("Delete", "Comentarios", FormMethod.Post, new { enctype = "multipart/form-data" }))
+                                {
+                                    @Html.AntiForgeryToken()
+                                    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                                    // id do comentario para ser apagado
+                                    <input type="hidden" name="IdComentario" value="@c.IdComentario" />
+                                    // id da notícia
+                                    @Html.HiddenFor(model => model.IdNoticia)
 
-        <dt>
-            @Html.DisplayNameFor(model => model.Descricao)
-        </dt>
+                                    //Modal
+                                    <div id="myModal" class="modal fade" role="dialog">
+                                        <div class="modal-dialog">
+                                            <!-- Modal content-->
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                                    <h4 class="modal-title">Apagar</h4>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <p>Tem a certeza que quer apagar este comentário: @Html.Raw(c.Texto)</p>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <input type="submit" value="Sim" class="btn btn-default" /> |
+                                                    <button type="button" class="btn btnCriar" data-dismiss="modal">Cancelar</button>
+                                                </div>
+                                            </div>
 
-        <dd>
-            @Html.DisplayFor(model => model.Descricao)
-        </dd>
+                                        </div>
+                                    </div>
+                                }
+                            }
+                            <p class="pSemTamanho">
+                                @Html.Raw(c.Texto)
+                            </p>
 
-        <dt>
-            @Html.DisplayNameFor(model => model.Foto)
-        </dt>
+                        </div>
+                        <hr />
+                    }
 
-        <dd>
-            @Html.DisplayFor(model => model.Foto)
-        </dd>
-
-        <dt>
-            @Html.DisplayNameFor(model => model.TipoImagem)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.TipoImagem)
-        </dd>
-
-        <dt>
-            @Html.DisplayNameFor(model => model.Relevancia)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.Relevancia)
-        </dd>
-
-        <dt>
-            @Html.DisplayNameFor(model => model.DataPublicacao)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.DataPublicacao)
-        </dd>
-
-        <dt>
-            @Html.DisplayNameFor(model => model.DataLimiteVisualizacao)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.DataLimiteVisualizacao)
-        </dd>
-
-        <dt>
-            @Html.DisplayNameFor(model => model.Visivel)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.Visivel)
-        </dd>
-
-    </dl>
+                </div>
+            </div>
 </div>
-<p>
-    @Html.ActionLink("Editar", "Edit", new { id = Model.IdNoticia }) |
-    @Html.ActionLink("Voltar à lista", "Index")
-</p>
