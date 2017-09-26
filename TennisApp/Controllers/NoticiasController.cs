@@ -14,7 +14,6 @@ using System.IO;
 
 namespace TennisApp.Controllers
 {
-    [Authorize]
     public class NoticiasController : Controller
     {
         private ApplicationDbContext db = new ApplicationDbContext();
@@ -50,7 +49,7 @@ namespace TennisApp.Controllers
             }
             else if (!String.IsNullOrEmpty(categoriaString))
             {
-                noticias = noticias.Where(x => x.Categorias.Select(c=>c.Nome).Contains(categoriaString));
+                noticias = noticias.Where(x => x.Categorias.Select(c => c.Nome).Contains(categoriaString));
                 // https://stackoverflow.com/questions/13405568/linq-unable-to-create-a-constant-value-of-type-xxx-only-primitive-types-or-enu
             }
             else
@@ -82,7 +81,6 @@ namespace TennisApp.Controllers
         }
 
         // GET: Noticias/Details/5
-       // [Authorize(Roles = "Administrador")]
         public ActionResult Details(int? id)
         {
             if (id == null)
@@ -101,6 +99,7 @@ namespace TennisApp.Controllers
 
         // GET: Noticias/Create
         [ValidateInput(false)]
+        [Authorize(Roles = "Jornalista")]
         public ActionResult Create()
         {
             // obtem a lista de Categorias");
@@ -114,6 +113,7 @@ namespace TennisApp.Controllers
         [HttpPost]
         [ValidateInput(false)]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Jornalista")]
         public ActionResult Create([Bind(Include = "Titulo,Descricao,Foto,TipoImagem,Relevancia,DataPublicacao,DataLimiteVisualizacao,Visivel,CriadorFK")] Noticia noticia,
             string[] categorias, HttpPostedFile fotografia)
         {
@@ -197,7 +197,7 @@ namespace TennisApp.Controllers
 
         // GET: Noticias/Edit/5
         [ValidateInput(false)]
-    //    [Authorize(Roles = "Jornalista,Moderador")]
+        [Authorize(Roles = "Jornalista,Moderador")]
         public ActionResult Edit(int? id)
         {
             if (id == null)
@@ -226,7 +226,7 @@ namespace TennisApp.Controllers
             {
                 return View(noticia);
             }
-
+            TempData["Error"] = "Não tem permissões para editar esta notícia";
             return RedirectToAction("Index");
         }
 
@@ -236,7 +236,7 @@ namespace TennisApp.Controllers
         [HttpPost]
         [ValidateInput(false)]
         [ValidateAntiForgeryToken]
-     //   [Authorize(Roles = "Administrador")]
+        [Authorize(Roles = "Jornalista,Moderador")]
         public ActionResult Edit([Bind(Include = "IdNoticia,Titulo,Descricao,Foto,TipoImagem,Relevancia,DataPublicacao,DataLimiteVisualizacao,Visivel,CriadorFK")] Noticia noticia,
              string[] categorias, HttpPostedFile fotografia)
         {
@@ -297,11 +297,14 @@ namespace TennisApp.Controllers
                         return RedirectToAction("Index");
                     }
                 }
-                
+                else
+                {
+                    TempData["Error"] = "Não introduziu uma imagem válida para a Notícia";
+                }
             }
             else
             {
-                TempData["Error"] = "Não slecionou pelo menos uma Categoria para a Notícia";
+                TempData["Error"] = "Não selecionou pelo menos uma Categoria para a Notícia";
             }
             // obtem a lista de Categorias;
             ViewBag.Categorias = db.Categorias.OrderBy(c => c.Nome);
@@ -310,7 +313,7 @@ namespace TennisApp.Controllers
         }
 
         // GET: Noticias/Delete/5
-        [Authorize(Roles = "Administrador")]
+        [Authorize(Roles = "Jornalista,Moderador")]
         public ActionResult Delete(int? id)
         {
             if (id == null)
@@ -326,13 +329,25 @@ namespace TennisApp.Controllers
                 return RedirectToAction("Index");
                 //return HttpNotFound();
             }
-            return View(noticia);
+            // verificar se a pessoa que edita a notícia é um Moderador
+            if (User.IsInRole("Moderador"))
+            {
+                return View(noticia);
+            }
+
+            // verificar se a pessoa que edita a notícia é o seu autor
+            if (noticia.Criador.UserName.Equals(User.Identity.Name))
+            {
+                return View(noticia);
+            }
+            TempData["Error"] = "Não tem permissões para remover esta notícia";
+            return RedirectToAction("Index");
         }
 
         // POST: Noticias/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        [Authorize(Roles = "Administrador")]
+        [Authorize(Roles = "Jornalista,Moderador")]
         public ActionResult DeleteConfirmed(int id)
         {
             Noticia noticia = db.Noticias.Find(id);

@@ -809,6 +809,7 @@
     <Content Include="Views\Shared\NotFound.cshtml" />
     <Content Include="Views\List.cshtml" />
     <Content Include="Views\Noticias\_Comentario.cshtml" />
+    <Content Include="Views\Shared\EmailNotConfirmed.cshtml" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>

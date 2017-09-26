@@ -10,9 +10,37 @@
     ViewBag.Title = "Gestão de Utilizadores";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
+@if (TempData["Create"] != null)
+{
+    <div id="msg" class="alert alert-success fade in">
+        <strong>Utilizador criado!</strong>
+        O Utilizador " @TempData["Create"].ToString() " foi criado com sucesso.
+    </div>
+}
+@if (TempData["Edit"] != null)
+{
+    <div id="msg" class="alert alert-warning fade in">
+        <strong>Utilizador editado!</strong>
+        O Utilizador " @TempData["Edit"].ToString() " foi editado com sucesso.
+    </div>
+}
+@if (TempData["Delete"] != null)
+{
+    <div id="msg" class="alert alert-success fade in">
+        <strong>Utilizador editado!</strong>
+        O Utilizador " @TempData["Delete"].ToString() " foi eliminado com sucesso.
+    </div>
+}
+@if (TempData["Error"] != null)
+{
+    <div id="msg" class="alert alert-danger fade in">
+        <strong>Erro!</strong>
+        Ocorreu um erro: @TempData["Error"].ToString() .
+    </div>
+}
 <script src="~/Scripts/jquery-1.10.2.js"></script>
 
-<div class="container">
+<div>
 
     <div class="row" style="padding:5px;">
         <div class="col col-md-9" style="font-size:14px;">
@@ -31,7 +59,7 @@
         <div class="col-12 col-lg-2" style="font-size:14px;">
             @if (User.IsInRole("Administrador"))
             {
-                <label>@*@Html.ActionLink("Criar um novo Utilizador", "Create")*@</label>
+                <label>@Html.ActionLink("Criar um novo Utilizador", "Create")</label>
             }
         </div>
     </div>
@@ -102,3 +130,13 @@
 }),
     new PagedListRenderOptions() { Display = PagedListDisplayMode.IfNeeded, DisplayPageCountAndCurrentLocation = true, DisplayItemSliceAndTotal = true })
 </div>
+
+<script>
+    $(document).ready(function () {
+        // esconde a mensagem de alerta que apareça
+        setTimeout(function () {
+            $("#msg").fadeOut(1000);
+        }, 6000);
+    });
+
+</script>

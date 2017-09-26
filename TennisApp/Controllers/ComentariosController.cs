@@ -64,6 +64,7 @@ namespace TennisApp.Controllers
         // GET: Comentarios
         [AllowAnonymous]
         [OutputCache(Duration = 10)]
+        [Authorize(Roles = "Administrador,Moderador")]
         public ActionResult Index(string searchBy, string search, int? page, string sortBy)
         {
             ViewBag.SortAutorParameter = string.IsNullOrEmpty(sortBy) ? "Autor desc" : "";
@@ -102,7 +103,7 @@ namespace TennisApp.Controllers
         }
 
         // GET: Comentarios/Details/5
-        [Authorize(Roles = "Administrador")]
+        [Authorize(Roles = "Administrador,Moderador")]
         public ActionResult Details(int? id)
         {
             if (id == null)
@@ -121,6 +122,7 @@ namespace TennisApp.Controllers
 
         // GET: Comentarios/Create
         [ValidateInput(false)]
+        [Authorize(Roles = "Administrador,Moderador")]
         public ActionResult Create()
         {
             ViewBag.CriadorFK = new SelectList(db.Utilizadores, "IdUtilizador", "Nome");
@@ -134,6 +136,7 @@ namespace TennisApp.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [ValidateInput(false)]
+        [Authorize(Roles = "Administrador,Moderador")]
         public ActionResult Create([Bind(Include = "IdComentario,Texto,DataComentario,Visivel,NoticiaFK,CriadorFK")] Comentario comentario)
         {
             StringBuilder sbComentarios = new StringBuilder();
@@ -162,7 +165,6 @@ namespace TennisApp.Controllers
 
         // GET: Comentarios/Edit/5
         [ValidateInput(false)]
-        [Authorize(Roles = "Administrador")]
         public ActionResult Edit(int? id)
         {
             if (id == null)
@@ -176,9 +178,22 @@ namespace TennisApp.Controllers
                 TempData["Error"] = "Comentário inválido";
                 return RedirectToAction("Index");
             }
+            // verificar se a pessoa que edita a notícia é um Moderador
+            if (User.IsInRole("Moderador"))
+            {
+                return View(comentario);
+            }
+
+            // verificar se a pessoa que edita a notícia é o seu autor
+            if (comentario.Criador.UserName.Equals(User.Identity.Name))
+            {
+                return View(comentario);
+            }
+
             ViewBag.CriadorFK = new SelectList(db.Utilizadores, "IdUtilizador", "Nome", comentario.CriadorFK);
             ViewBag.NoticiaFK = new SelectList(db.Noticias, "IdNoticia", "Titulo", comentario.NoticiaFK);
-            return View(comentario);
+            TempData["Error"] = "Não tem permissões para editar este comentário";
+            return RedirectToAction("Index");
         }
 
         // POST: Comentarios/Edit/5
@@ -187,7 +202,6 @@ namespace TennisApp.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [ValidateInput(false)]
-        [Authorize(Roles = "Administrador")]
         public ActionResult Edit([Bind(Include = "IdComentario,Texto,DataComentario,Visivel,NoticiaFK,CriadorFK")] Comentario comentario)
         {
             StringBuilder sbComentarios = new StringBuilder();
@@ -214,7 +228,6 @@ namespace TennisApp.Controllers
         }
 
         // GET: Comentarios/Delete/5
-        [Authorize(Roles = "Administrador")]
         public ActionResult Delete(int? id)
         {
             if (id == null)
@@ -228,13 +241,24 @@ namespace TennisApp.Controllers
                 TempData["Error"] = "Comentário inválido";
                 return RedirectToAction("Index");
             }
-            return View(comentario);
+            // verificar se a pessoa que edita a notícia é um Moderador
+            if (User.IsInRole("Moderador"))
+            {
+                return View(comentario);
+            }
+
+            // verificar se a pessoa que edita a notícia é o seu autor
+            if (comentario.Criador.UserName.Equals(User.Identity.Name))
+            {
+                return View(comentario);
+            }
+            TempData["Error"] = "Não tem permissões para remover este comentário";
+            return RedirectToAction("Index");
         }
 
         // POST: Comentarios/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        [Authorize(Roles = "Administrador")]
         public ActionResult DeleteConfirmed(int id)
         {
             Comentario comentario = db.Comentarios.Find(id);

@@ -14,7 +14,7 @@ using Microsoft.AspNet.Identity;
 
 namespace TennisApp.Controllers
 {
-    [Authorize]
+    [Authorize(Roles = "Administrador")]
     public class UtilizadorsController : Controller
     {
         private ApplicationDbContext db = new ApplicationDbContext();
@@ -68,7 +68,6 @@ namespace TennisApp.Controllers
         }
 
         // GET: Utilizadors/Details/5
-        [Authorize(Roles = "Administrador")]
         public ActionResult Details(int? id)
         {
             if (id == null)
@@ -122,7 +121,6 @@ namespace TennisApp.Controllers
 
         // GET: Utilizadors/Edit/5
         [ValidateInput(false)]
-        [Authorize(Roles = "Administrador")]
         public ActionResult Edit(int? id)
         {
             if (id == null)
@@ -145,7 +143,6 @@ namespace TennisApp.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [ValidateInput(false)]
-        [Authorize(Roles = "Administrador")]
         public ActionResult Edit([Bind(Include = "IdUtilizador,Nome,Tipo,Email,Telemovel,DataNasc,UserName")] Utilizador utilizador)
         {
             string strNome = HttpUtility.HtmlEncode(utilizador.Nome);
@@ -173,7 +170,6 @@ namespace TennisApp.Controllers
         }
 
         // GET: Utilizadors/Delete/5
-        [Authorize(Roles = "Administrador")]
         public ActionResult Delete(int? id)
         {
             if (id == null)
@@ -193,7 +189,6 @@ namespace TennisApp.Controllers
         // POST: Utilizadors/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        [Authorize(Roles = "Administrador")]
         public ActionResult DeleteConfirmed(int id)
         {
             Utilizador utilizador = db.Utilizadores.Find(id);

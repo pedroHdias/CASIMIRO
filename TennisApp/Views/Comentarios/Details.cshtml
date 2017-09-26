@@ -3,7 +3,13 @@
 @{
     ViewBag.Title = "Detalhes";
 }
-
+@if (TempData["Error"] != null)
+{
+    <div id="msg" class="alert alert-danger fade in">
+        <strong>Erro!</strong>
+        Ocorreu um erro: @TempData["Error"].ToString() .
+    </div>
+}
 <h2>Detalhes</h2>
 
 <div>
@@ -56,3 +62,12 @@
     @Html.ActionLink("Editar", "Edit", new { id = Model.IdComentario }) |
     @Html.ActionLink("Voltar à lista", "Index")
 </p>
+<script>
+    $(document).ready(function () {
+        // esconde a mensagem de alerta que apareça
+        setTimeout(function () {
+            $("#msg").fadeOut(1000);
+        }, 6000);
+    });
+
+</script>

@@ -3,7 +3,20 @@
 @{
     ViewBag.Title = "Criar";
 }
-
+@if (TempData["Create"] != null)
+{
+    <div id="msg" class="alert alert-success fade-in">
+        <strong>Categoria criada!</strong>
+        A Categoria " @TempData["Create"].ToString() " foi criada com sucesso.
+    </div>
+}
+@if (TempData["Error"] != null)
+{
+    <div id="msg" class="alert alert-danger fade-in">
+        <strong>Erro!</strong>
+        Ocorreu um erro: @TempData["Error"].ToString() .
+    </div>
+}
 <h2>Criar</h2>
 
 
@@ -46,3 +59,13 @@
 @section Scripts {
     @Scripts.Render("~/bundles/jqueryval")
 }
+
+<script>
+    $(document).ready(function () {
+        // esconde a mensagem de alerta que apareça
+        setTimeout(function () {
+            $("#msg").fadeOut(1000);
+        }, 6000);
+    });
+
+</script>

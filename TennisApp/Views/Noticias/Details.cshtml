@@ -5,53 +5,14 @@
     ViewBag.Title = "Detalhes";
     ViewBag.user = User.Identity.GetUserName();
 }
+@if (TempData["Error"] != null)
+{
+    <div id="msg" class="alert alert-danger fade in">
+        <strong>Erro!</strong>
+        Ocorreu um erro: @TempData["Error"].ToString() .
+    </div>
+}
 <script src="~/Scripts/jquery-1.10.2.js"></script>
-
-<script>
-    $(document).ready(function () {
-
-        //Limita quantos caracteres que a textarea pode ter
-        $('#comentario').keypress(function (event) {
-            var max = 500;
-            var len = $(this).val().length;
-
-            if (event.which < 0x20) {
-                // e.which < 0x20, then it's not a printable character
-                // e.which === 0 - Not a character
-                return; // Do nothing
-            }
-
-            if (len >= max) {
-                event.preventDefault();
-            }
-
-        });
-
-        //Mostra quantos caracteres faltam
-        $('#comentario').keyup(function (event) {
-            var max = 500;
-            var len = $(this).val().length;
-            var char = max - len;
-
-            $('#charNum').text('Faltam ' + char + ' caracteres');
-
-        });
-
-        //Limita o número de linhas que a textarea pode ter e mostra quantas linhas faltam
-        $('#comentario').keydown(function (e) {
-
-            var maxLines = 20;
-            var numLines = $(this).val().split("\n").length;
-
-            $('#linesUsed').text('Máximo de 20 linhas:' + numLines);
-
-            if (e.keyCode == 13 && numLines >= maxLines) {
-                return false;
-            }
-        });
-
-    });
-</script>
 
 <div class="container-base">
     <div class="row">
@@ -174,3 +135,50 @@
         </div>
     </div>
 </div>
+
+
+<script>
+    $(document).ready(function () {
+
+        //Limita quantos caracteres que a textarea pode ter
+        $('#comentario').keypress(function (event) {
+            var max = 500;
+            var len = $(this).val().length;
+
+            if (event.which < 0x20) {
+                // e.which < 0x20, then it's not a printable character
+                // e.which === 0 - Not a character
+                return; // Do nothing
+            }
+
+            if (len >= max) {
+                event.preventDefault();
+            }
+
+        });
+
+        //Mostra quantos caracteres faltam
+        $('#comentario').keyup(function (event) {
+            var max = 500;
+            var len = $(this).val().length;
+            var char = max - len;
+
+            $('#charNum').text('Faltam ' + char + ' caracteres');
+
+        });
+
+        //Limita o número de linhas que a textarea pode ter e mostra quantas linhas faltam
+        $('#comentario').keydown(function (e) {
+
+            var maxLines = 20;
+            var numLines = $(this).val().split("\n").length;
+
+            $('#linesUsed').text('Máximo de 20 linhas:' + numLines);
+
+            if (e.keyCode == 13 && numLines >= maxLines) {
+                return false;
+            }
+        });
+
+    });
+</script>

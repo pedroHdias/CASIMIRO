@@ -85,8 +85,7 @@ namespace TennisApp.Controllers
             {
                 case SignInStatus.Success:
                     {
-
-
+                        /*
                         var user = await UserManager.FindByNameAsync(model.Email);
                         if (user != null)
                         {
@@ -95,7 +94,7 @@ namespace TennisApp.Controllers
                                 return RedirectToAction("Login");
                             }
                         }
-
+                        */
                         return RedirectToLocal(returnUrl);
                     }
                 case SignInStatus.LockedOut:
