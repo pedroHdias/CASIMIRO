@@ -1,7 +1,31 @@
-﻿@model TennisApp.Models.Utilizador
+﻿@using Microsoft.AspNet.Identity;
+@using Microsoft.AspNet.Identity.EntityFramework;
+@using TennisApp.Models;
+
+<script src="~/Scripts/jquery-1.10.2.js"></script>
+
+@model TennisApp.Models.Utilizador
 
 @{
     ViewBag.Title = "Editar";
+    //Preenche as dropdowns e a lista de roles existt
+    List<string> roles;
+    List<string> users;
+    using (var context = new ApplicationDbContext())
+    {
+        var roleStore = new RoleStore<IdentityRole>(context);
+        var roleManager = new RoleManager<IdentityRole>(roleStore);
+
+        var userStore = new UserStore<ApplicationUser>(context);
+        var userManager = new UserManager<ApplicationUser>(userStore);
+
+        users = (from u in userManager.Users select u.UserName).ToList();
+        roles = (from r in roleManager.Roles select r.Name).ToList();
+    }
+    ViewBag.Roles = new SelectList(roles);
+    ViewBag.Users = new SelectList(users);
+    ViewBag.RolesList = roles;
+    Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
 <h2>Editar</h2>
@@ -22,6 +46,14 @@
             <div class="col-md-10">
                 @Html.EditorFor(model => model.Nome, new { htmlAttributes = new { @class = "form-control" } })
                 @Html.ValidationMessageFor(model => model.Nome, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.Tipo, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.DropDownList("Tipo", ViewBag.Roles as SelectList, new { @class = "form-control" })
+                @Html.ValidationMessageFor(model => model.Tipo, "", new { @class = "text-danger" })
             </div>
         </div>
 

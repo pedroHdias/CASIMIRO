@@ -21,7 +21,7 @@ namespace TennisApp.Models
 
         [Required(ErrorMessage = "É necessário um {0}.")]
         [DisplayName("Título")]
-        [StringLength(50, MinimumLength = 3, ErrorMessage = "O {0} deve ter entre {2} e {1} caracteres.")]
+        [StringLength(100, MinimumLength = 3, ErrorMessage = "O {0} deve ter entre {2} e {1} caracteres.")]
         public string Titulo { get; set; }
 
         [DisplayName("Descrição")]

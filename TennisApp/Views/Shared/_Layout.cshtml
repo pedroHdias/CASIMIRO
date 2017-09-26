@@ -24,12 +24,22 @@
                 <ul class="nav navbar-nav">
                     <li>@Html.ActionLink("Sobre", "About", "Home")</li>
                     <li>@Html.ActionLink("Contactos", "Contact", "Home")</li>
-                    <li>@Html.ActionLink("Noticias", "Index", "Noticias")</li>
+                    <li>@Html.ActionLink("Notícias", "Index", "Noticias")</li>
                     @if (User.IsInRole("Administrador"))
                     {
-                        <li>@Html.ActionLink("Categorias", "Index", "Categorias")</li>
-                        <li>@Html.ActionLink("Comentarios", "Index", "Comentarios")</li>
-                        <li>@Html.ActionLink("Utilizadores", "Index", "Utilizadors")</li>
+                        <li class="dropdown">
+                            <a class="navBar-AdminBtn"data-toggle="dropdown" >Administração<b class="caret"></b></a>
+                            <ul class="dropdown-menu">
+                                <li><a>@Html.ActionLink("Categorias", "Index", "Categorias")</a></li>
+                                <li><a>@Html.ActionLink("Comentários", "Index", "Comentarios")</a></li>
+                                <li><a>@Html.ActionLink("Utilizadores", "Index", "Utilizadors")</a></li>
+                            </ul>
+                            <ul class="dropdown-menu">
+                                <li><a>@Html.ActionLink("Categorias", "Index", "Categorias")</a></li>
+                                <li><a>@Html.ActionLink("Comentários", "Index", "Comentarios")</a></li>
+                                <li><a>@Html.ActionLink("Utilizadores", "Index", "Utilizadors")</a></li>
+                            </ul>
+                        </li>   
                     }
                 </ul>
                 @Html.Partial("_LoginPartial")

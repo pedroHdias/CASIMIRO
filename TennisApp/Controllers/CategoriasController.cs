@@ -13,7 +13,7 @@ using PagedList.Mvc;
 
 namespace TennisApp.Controllers
 {
-    [Authorize]
+    [Authorize(Roles = "Administrador,Moderador")]
     public class CategoriasController : Controller
     {
         private ApplicationDbContext db = new ApplicationDbContext();
@@ -46,7 +46,7 @@ namespace TennisApp.Controllers
                     categorias = categorias.OrderBy(x => x.Nome);
                     break;
             }
-            return View(categorias.ToPagedList(page ?? 1, 3));
+            return View(categorias.ToPagedList(page ?? 1, 5));
         }
 
         public JsonResult GetSearch(string term)
@@ -79,7 +79,6 @@ namespace TennisApp.Controllers
 
         // GET: Categorias/Create
         [ValidateInput(false)]
-        [Authorize(Roles = "Administrador")]
         public ActionResult Create()
         {
             return View();
@@ -90,10 +89,15 @@ namespace TennisApp.Controllers
         // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize(Roles = "Administrador")]
         [ValidateInput(false)]
         public ActionResult Create([Bind(Include = "IdCategoria,Nome,Descricao")] Categoria categoria)
         {
+            //Selecciona o último id da tabela de categorias e incrementa 1
+            var CategoryID = db.Categorias.OrderByDescending(d => d.IdCategoria).FirstOrDefault().IdCategoria + 1;
+
+            // atribui o novo ID ao objeto que veio da View
+            categoria.IdCategoria = CategoryID;
+
             StringBuilder sbCategorias = new StringBuilder();
             sbCategorias.Append(HttpUtility.HtmlEncode(categoria.Descricao));
 
@@ -120,7 +124,6 @@ namespace TennisApp.Controllers
         }
 
         // GET: Categorias/Edit/5
-        [Authorize(Roles = "Administrador")]
         [ValidateInput(false)]
         public ActionResult Edit(int? id)
         {

@@ -83,11 +83,12 @@
         <div class="col-md-6" style="text-align:left; font-size:16px;">
             @Html.ActionLink("Voltar atrás", "Index")
         </div>
-        @if (User.IsInRole("Administrador"))
-            {
-            <div class="col-md-6" style="text-align:right; font-size:16px;">
-                @Html.ActionLink("Editar", "Edit", new { id = Model.IdNoticia })
-            </div>
+        @if (User.IsInRole("Moderador") || Model.Criador.UserName.Equals(User.Identity.Name))
+        {// se o utilizador for do tipo 'Moderador' ou o 'criador' da notícia,
+         // pode editar a notícia
+        <div class="col-md-6" style="text-align:right; font-size:16px;">
+            @Html.ActionLink("Editar", "Edit", new { id = Model.IdNoticia })
+        </div>
         }
     </div>
 
@@ -98,11 +99,12 @@
         <!-- Criar um comentario-->
         @if (User.Identity.IsAuthenticated)
         {
-                using (Html.BeginForm("AddComment", "Comentarios", FormMethod.Post, new { enctype = "multipart/form-data" }))
-                {
+            using (Html.BeginForm("AddComment", "Comentarios", FormMethod.Post))
+            {
                 @Html.AntiForgeryToken()
                 @Html.ValidationSummary(true, "", new { @class = "text-danger" })
-                @Html.HiddenFor(model => model.IdNoticia)
+                <input type="hidden" name="idNoticia" value="@Model.IdNoticia" />
+              
                 <div class="row">
                     <div class="col-md-12">
                         @Html.Label("Comentário", htmlAttributes: new { @class = "control-label col-md-2" }) <br />
@@ -118,57 +120,57 @@
                     </div>
                 </div>
 
-                }
-                }
+            }
+        }
         <!-- Mostrar comentarios-->
+        <div class="col-md-12">
+            @foreach (var c in Model.Comentarios.OrderByDescending(cc => cc.DataComentario))
+            {
                 <div class="col-md-12">
-                    @foreach (var c in Model.Comentarios.OrderByDescending(cc => cc.DataComentario))
+                    <label style="font-weight:bold; font-size:16px;">@c.Criador.Nome</label>
+                    <label style="color:black"> - @c.DataComentario</label>  <br />
+                    @if (c.Criador.Equals(User.Identity.GetUserId()) || User.IsInRole("Administrador"))
                     {
-                        <div class="col-md-12">
-                            <label style="font-weight:bold; font-size:16px;">@c.Criador.Nome</label>
-                            <label style="color:black"> - @c.DataComentario</label>  <br />
-                            @if (c.Criador.Equals(User.Identity.GetUserId()) || User.IsInRole("Administrador"))
-                    {
-                                <button type="button" class="btn btnCriar" data-toggle="modal" data-target="#myModal" style="float:right; border:0px;">X</button>
-                                using (Html.BeginForm("Delete", "Comentarios", FormMethod.Post, new { enctype = "multipart/form-data" }))
-                                {
-                                    @Html.AntiForgeryToken()
-                                    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
-                                    // id do comentario para ser apagado
-                                    <input type="hidden" name="IdComentario" value="@c.IdComentario" />
-                                    // id da notícia
-                                    @Html.HiddenFor(model => model.IdNoticia)
+                        <button type="button" class="btn btnCriar" data-toggle="modal" data-target="#myModal" style="float:right; border:0px;">X</button>
+                        using (Html.BeginForm("Delete", "Comentarios", FormMethod.Post, new { enctype = "multipart/form-data" }))
+                        {
+                            @Html.AntiForgeryToken()
+                            @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                            // id do comentario para ser apagado
+                            <input type="hidden" name="IdComentario" value="@c.IdComentario" />
+                            // id da notícia
+                            @Html.HiddenFor(model => model.IdNoticia)
 
-                                    //Modal
-                                    <div id="myModal" class="modal fade" role="dialog">
-                                        <div class="modal-dialog">
-                                            <!-- Modal content-->
-                                            <div class="modal-content">
-                                                <div class="modal-header">
-                                                    <button type="button" class="close" data-dismiss="modal">&times;</button>
-                                                    <h4 class="modal-title">Apagar</h4>
-                                                </div>
-                                                <div class="modal-body">
-                                                    <p>Tem a certeza que quer apagar este comentário: @Html.Raw(c.Texto)</p>
-                                                </div>
-                                                <div class="modal-footer">
-                                                    <input type="submit" value="Sim" class="btn btn-default" /> |
-                                                    <button type="button" class="btn btnCriar" data-dismiss="modal">Cancelar</button>
-                                                </div>
-                                            </div>
-
+                            //Modal
+                            <div id="myModal" class="modal fade" role="dialog">
+                                <div class="modal-dialog">
+                                    <!-- Modal content-->
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                            <h4 class="modal-title">Apagar</h4>
+                                        </div>
+                                        <div class="modal-body">
+                                            <p>Tem a certeza que quer apagar este comentário: @Html.Raw(c.Texto)</p>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <input type="submit" value="Sim" class="btn btn-default" /> |
+                                            <button type="button" class="btn btnCriar" data-dismiss="modal">Cancelar</button>
                                         </div>
                                     </div>
-                                }
-                            }
-                            <p class="pSemTamanho">
-                                @Html.Raw(c.Texto)
-                            </p>
 
-                        </div>
-                        <hr />
+                                </div>
+                            </div>
+                        }
                     }
+                    <p class="pSemTamanho">
+                        @Html.Raw(c.Texto)
+                    </p>
 
                 </div>
-            </div>
+                        <hr />
+            }
+
+        </div>
+    </div>
 </div>

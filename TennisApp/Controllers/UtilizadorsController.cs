@@ -10,6 +10,7 @@ using System.Web.Mvc;
 using TennisApp.Models;
 using PagedList;
 using PagedList.Mvc;
+using Microsoft.AspNet.Identity;
 
 namespace TennisApp.Controllers
 {
@@ -26,12 +27,17 @@ namespace TennisApp.Controllers
         {
             ViewBag.SortNameParameter = string.IsNullOrEmpty(sortBy) ? "Name desc" : "";
             ViewBag.SortUsernameParameter = sortBy == "Username" ? "Username desc" : "Username";
+            ViewBag.SortTipoParameter = sortBy == "Tipo" ? "Tipo desc" : "Tipo";
 
             var utilizadores = db.Utilizadores.AsQueryable();
 
             if (searchBy == "Nome")
             {
                 utilizadores = utilizadores.Where(x => x.Nome.Contains(search) || search == null);
+            }
+            else if (searchBy == "Tipo")
+            {
+                utilizadores = utilizadores.Where(x => x.Tipo.Contains(search) || search == null);
             }
             else
             {
@@ -48,11 +54,17 @@ namespace TennisApp.Controllers
                 case "Username":
                     utilizadores = utilizadores.OrderBy(x => x.UserName);
                     break;
+                case "Tipo desc":
+                    utilizadores = utilizadores.OrderByDescending(x => x.Tipo);
+                    break;
+                case "Tipo":
+                    utilizadores = utilizadores.OrderBy(x => x.Tipo);
+                    break;
                 default:
                     utilizadores = utilizadores.OrderBy(x => x.Nome);
                     break;
             }
-            return View(utilizadores.ToPagedList(page ?? 1, 3));
+            return View(utilizadores.ToPagedList(page ?? 1, 5));
         }
 
         // GET: Utilizadors/Details/5
@@ -90,6 +102,7 @@ namespace TennisApp.Controllers
         [AllowAnonymous]
         public ActionResult Create([Bind(Include = "IdUtilizador,Nome,Tipo,Email,Telemovel,DataNasc,UserName")] Utilizador utilizador)
         {
+
             string strNome = HttpUtility.HtmlEncode(utilizador.Nome);
             utilizador.Nome = strNome;
 
@@ -141,9 +154,16 @@ namespace TennisApp.Controllers
             string strUsername = HttpUtility.HtmlEncode(utilizador.UserName);
             utilizador.UserName = strUsername;
 
-
             if (ModelState.IsValid)
             {
+                //alterar dados do Utilizador da parte da aplicação
+                //criar os dados do Utilizador
+                ApplicationDbContext db = new ApplicationDbContext();
+                var user = new ApplicationUser { UserName = utilizador.Email, Email = utilizador.Email };
+              //  user = db.Users.Find(user);
+              //  User
+            //  UserManager.
+
                 db.Entry(utilizador).State = EntityState.Modified;
                 db.SaveChanges();
                 TempData["Edit"] = "" + utilizador.Nome;

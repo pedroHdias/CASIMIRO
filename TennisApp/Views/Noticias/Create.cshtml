@@ -5,14 +5,14 @@
 }
 @if (TempData["Create"] != null)
 {
-    <div class="alert alert-success">
+    <div id="msg" class="alert alert-success fade-in">
         <strong>Notícia criada!</strong>
         A notícia " @TempData["Create"].ToString() " foi criada com sucesso.
     </div>
 }
 @if (TempData["Error"] != null)
 {
-    <div class="alert alert-danger">
+    <div id="msg" class="alert alert-danger fade-in">
         <strong>Erro!</strong>
         Ocorreu um erro: @TempData["Error"].ToString() .
     </div>
@@ -117,3 +117,13 @@
 @section Scripts {
     @Scripts.Render("~/bundles/jqueryval")
 }
+
+<script>
+    $(document).ready(function () {
+        // esconde a mensagem de alerta que apareça
+        setTimeout(function () {
+            $("#msg").fadeOut(1000);
+        }, 6000);
+    });
+
+</script>

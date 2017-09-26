@@ -22,8 +22,8 @@ namespace TennisApp.Models
         [StringLength(50, MinimumLength = 3, ErrorMessage = "O {0} deve ter entre {2} e {1} caracteres.")]
         public string Nome { get; set; }
 
-        //[Required(ErrorMessage = "É necessário um Tipo de Utilizador.")]
-        //public string Tipo { get; set; }
+        [Required(ErrorMessage = "É necessário um Tipo de Utilizador.")]
+        public string Tipo { get; set; }
 
         [DataType(DataType.EmailAddress, ErrorMessage = "Não é um email válido.")]
         public string Email { get; set; }

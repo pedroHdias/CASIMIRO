@@ -24,10 +24,10 @@ namespace TennisApp.Controllers
         [HttpPost]
         [ValidateInput(false)]
         [ValidateAntiForgeryToken]
-        public ActionResult AddComment(string comentario, int iDnoticiaNova)
+        public ActionResult AddComment(string comentario, int idNoticia)
         {
 
-            if (comentario != "")
+            if (!string.IsNullOrEmpty( comentario ))
             {
                 StringBuilder sbComentarios = new StringBuilder();
                 sbComentarios.Append(HttpUtility.HtmlEncode(comentario));
@@ -41,7 +41,7 @@ namespace TennisApp.Controllers
                 Comentario novoComentario = new Comentario();
 
                 // adicionar dados ao obj que vai levar os dados para a BD
-                novoComentario.Noticia.IdNoticia = iDnoticiaNova;
+                novoComentario.Noticia.IdNoticia = idNoticia;
                 novoComentario.Criador.Nome = User.Identity.GetUserId();
                 novoComentario.DataComentario = DateTime.Now;
                 novoComentario.Texto = comentario;
@@ -58,7 +58,7 @@ namespace TennisApp.Controllers
                     TempData["Error"] = "Comentário inválido";
                 }
             }
-            return RedirectToAction("Details", "News", new { Id = iDnoticiaNova });
+            return RedirectToAction("Details", "News", new { Id = idNoticia });
         }
 
         // GET: Comentarios
@@ -98,7 +98,7 @@ namespace TennisApp.Controllers
                     comentarios = comentarios.OrderBy(x => x.Criador.Nome);
                     break;
             }
-            return View(comentarios.ToPagedList(page ?? 1, 3));
+            return View(comentarios.ToPagedList(page ?? 1, 6));
         }
 
         // GET: Comentarios/Details/5

@@ -55,7 +55,7 @@ namespace TennisApp
                 }
                 var utilizadores = new List<Utilizador>
                 {
-                    new Utilizador {IdUtilizador = 1, Nome ="Admin", Email = "admin@a.aa",
+                    new Utilizador {IdUtilizador = 1, Nome ="Admin", Tipo="Administrador", Email = "admin@a.aa",
                                     Telemovel = "960000001", DataNasc = new DateTime(1990,1,1), UserName = "admin@a.aa" }
                 };
                 utilizadores.ForEach(dd => db.Utilizadores.AddOrUpdate(d => d.Nome, dd));
@@ -67,6 +67,22 @@ namespace TennisApp
             {
                 var role = new IdentityRole();
                 role.Name = "Default";
+                roleManager.Create(role);
+            }
+
+            // Criar a role 'Jornalista'
+            if (!roleManager.RoleExists("Jornalista"))
+            {
+                var role = new IdentityRole();
+                role.Name = "Jornalista";
+                roleManager.Create(role);
+            }
+
+            // Criar a role 'Moderador'
+            if (!roleManager.RoleExists("Moderador"))
+            {
+                var role = new IdentityRole();
+                role.Name = "Moderador";
                 roleManager.Create(role);
             }
         }

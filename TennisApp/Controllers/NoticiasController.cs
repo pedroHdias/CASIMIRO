@@ -31,7 +31,7 @@ namespace TennisApp.Controllers
             var categoriaList = new List<String>();
             var categoriasQry = from d in db.Categorias orderby d.Nome select d.Nome;
 
-            categoriaList.AddRange(categoriasQry.Distinct());
+            categoriaList.AddRange(categoriasQry);
             ViewBag.categoriaString = new SelectList(categoriaList);
 
             var noticias = db.Noticias.AsQueryable();
@@ -50,9 +50,8 @@ namespace TennisApp.Controllers
             }
             else if (!String.IsNullOrEmpty(categoriaString))
             {
-                Categoria cat = new Categoria();
-                cat.Nome = categoriaString;
-                noticias = noticias.Where(x => x.Categorias.Equals(cat));
+                noticias = noticias.Where(x => x.Categorias.Select(c=>c.Nome).Contains(categoriaString));
+                // https://stackoverflow.com/questions/13405568/linq-unable-to-create-a-constant-value-of-type-xxx-only-primitive-types-or-enu
             }
             else
             {
@@ -79,11 +78,11 @@ namespace TennisApp.Controllers
                     noticias = noticias.OrderBy(x => x.Criador.Nome);
                     break;
             }
-            return View(noticias.ToPagedList(page ?? 1, 3));
+            return View(noticias.ToPagedList(page ?? 1, 8));
         }
 
         // GET: Noticias/Details/5
-        [Authorize(Roles = "Administrador")]
+       // [Authorize(Roles = "Administrador")]
         public ActionResult Details(int? id)
         {
             if (id == null)
@@ -122,7 +121,7 @@ namespace TennisApp.Controllers
             {
                 if (fotografia != null)
                 {
-                    //Selecciona o último id da tabela de ingredientes e incrementa 1
+                    //Selecciona o último id  e incrementa 1
                     var NoticiaID = db.Noticias.OrderByDescending(d => d.IdNoticia).FirstOrDefault().IdNoticia + 1;
 
                     // atribui o novo ID ao objeto que veio da View
@@ -133,7 +132,7 @@ namespace TennisApp.Controllers
 
                     string pic = System.IO.Path.GetFileName(fotografia.FileName);
                     noticia.Foto = pic;
-                    //guardar caminho apra a foto
+                    //guardar caminho para a foto
                     string path = System.IO.Path.Combine(Server.MapPath("/Imagens"), pic);
 
                     fotografia.SaveAs(path);// file is uploaded
@@ -198,7 +197,7 @@ namespace TennisApp.Controllers
 
         // GET: Noticias/Edit/5
         [ValidateInput(false)]
-        [Authorize(Roles = "Administrador")]
+    //    [Authorize(Roles = "Jornalista,Moderador")]
         public ActionResult Edit(int? id)
         {
             if (id == null)
@@ -212,8 +211,23 @@ namespace TennisApp.Controllers
                 TempData["Error"] = "Notícia inválida";
                 return RedirectToAction("Index");
             }
-            ViewBag.CriadorFK = new SelectList(db.Utilizadores, "IdUtilizador", "Nome", noticia.CriadorFK);
-            return View(noticia);
+
+            // obtem a lista de Categorias;
+            ViewBag.Categorias = db.Categorias.OrderBy(c => c.Nome);
+
+            // verificar se a pessoa que edita a notícia é um Moderador
+            if (User.IsInRole("Moderador"))
+            {
+                return View(noticia);
+            }
+
+            // verificar se a pessoa que edita a notícia é o seu autor
+            if (noticia.Criador.UserName.Equals(User.Identity.Name))
+            {
+                return View(noticia);
+            }
+
+            return RedirectToAction("Index");
         }
 
         // POST: Noticias/Edit/5
@@ -222,7 +236,7 @@ namespace TennisApp.Controllers
         [HttpPost]
         [ValidateInput(false)]
         [ValidateAntiForgeryToken]
-        [Authorize(Roles = "Administrador")]
+     //   [Authorize(Roles = "Administrador")]
         public ActionResult Edit([Bind(Include = "IdNoticia,Titulo,Descricao,Foto,TipoImagem,Relevancia,DataPublicacao,DataLimiteVisualizacao,Visivel,CriadorFK")] Noticia noticia,
              string[] categorias, HttpPostedFile fotografia)
         {
@@ -230,7 +244,7 @@ namespace TennisApp.Controllers
             {
                 if (fotografia != null)
                 {
-                    //Se existir uma foto para esta receita, apaga-a
+                    //Se existir uma foto para esta noticia, apaga-a
                     if (System.IO.File.Exists("/Imagens" + noticia.Foto))
                     {
                         System.IO.File.Delete("/Imagens" + noticia.Foto);
@@ -283,10 +297,7 @@ namespace TennisApp.Controllers
                         return RedirectToAction("Index");
                     }
                 }
-                else
-                {
-                    TempData["Error"] = "Não adicionou uma Imagem à Notícia";
-                }
+                
             }
             else
             {
@@ -294,7 +305,7 @@ namespace TennisApp.Controllers
             }
             // obtem a lista de Categorias;
             ViewBag.Categorias = db.Categorias.OrderBy(c => c.Nome);
-            ViewBag.CriadorFK = new SelectList(db.Utilizadores, "IdUtilizador", "Nome", noticia.CriadorFK);
+
             return View(noticia);
         }
 

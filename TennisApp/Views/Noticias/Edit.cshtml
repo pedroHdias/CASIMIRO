@@ -5,138 +5,136 @@
 }
 @if (TempData["Edit"] != null)
 {
-    <div class="alert alert-warning">
+    <div id="msg" class="alert alert-warning fade-in">
         <strong>Notícia editada!</strong>
         A notícia " @TempData["Edit"].ToString() " foi editada com sucesso.
     </div>
 }
 @if (TempData["Error"] != null)
 {
-    <div class="alert alert-danger">
+    <div id="msg" class="alert alert-danger fade-in">
         <strong>Erro!</strong>
         Ocorreu um erro: @TempData["Error"].ToString() .
     </div>
 }
 <h2>Editar</h2>
 <hr />
-<div class="container">
-@using (Html.BeginForm("Edit", "Noticias", FormMethod.Post, new { @class = "form-control", enctype = "multipart/form-data" }))
-{
-    @Html.AntiForgeryToken()
+<div >
 
-    <div class="form-horizontal">
-        <h4>Notícia</h4>
-        <hr />
-        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
-        @Html.HiddenFor(model => model.IdNoticia)
+    @using (Html.BeginForm("Edit", "Noticias", FormMethod.Post, new { @class = "form-control", enctype = "multipart/form-data" }))
+    {
+        @Html.AntiForgeryToken()
 
-        <div class="form-group">
-            @Html.LabelFor(model => model.Titulo, htmlAttributes: new { @class = "control-label col-md-2" })
-            <div class="col-md-10">
-                @Html.EditorFor(model => model.Titulo, new { htmlAttributes = new { @class = "form-control" } })
-                @Html.ValidationMessageFor(model => model.Titulo, "", new { @class = "text-danger" })
+        <div class="form-horizontal">
+            <h4>Notícia</h4>
+            <hr />
+            @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+            @Html.HiddenFor(model => model.IdNoticia)
+            @Html.HiddenFor(model => model.CriadorFK)
+
+            <div class="form-group">
+                @Html.LabelFor(model => model.Titulo, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-10">
+                    @Html.EditorFor(model => model.Titulo, new { htmlAttributes = new { @class = "form-control" } })
+                    @Html.ValidationMessageFor(model => model.Titulo, "", new { @class = "text-danger" })
+                </div>
             </div>
-        </div>
 
-        <div class="form-group">
-            @Html.LabelFor(model => model.Descricao, htmlAttributes: new { @class = "control-label col-md-2" })
-            <div class="col-md-10">
-                @Html.TextAreaFor(model => model.Descricao, new { @id = "editor", htmlAttributes = new { @class = "form-control" } })
-                <script>
-                    CKEDITOR.replace('editor');
-                </script>
-                @Html.ValidationMessageFor(model => model.Descricao, "", new { @class = "text-danger" })
+            <div class="form-group">
+                @Html.LabelFor(model => model.Descricao, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-10">
+                    @Html.TextAreaFor(model => model.Descricao, new { @id = "editor", htmlAttributes = new { @class = "form-control" } })
+                    <script>
+                        CKEDITOR.replace('editor');
+                    </script>
+                    @Html.ValidationMessageFor(model => model.Descricao, "", new { @class = "text-danger" })
+                </div>
             </div>
-        </div>
 
-        <div class="form-group">
-            @Html.LabelFor(model => model.Foto, htmlAttributes: new { @class = "control-label col-md-2" })
-            <div class="col-md-10">
-                @Html.EditorFor(model => model.Foto, new { htmlAttributes = new { @class = "form-control" } })
-                @Html.ValidationMessageFor(model => model.Foto, "", new { @class = "text-danger" })
+            <div class="form-group">
+                @Html.LabelFor(model => model.Foto, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-10">
+                    @Html.HiddenFor(model => model.Foto)
+                    <img src="~/Imagens/@Model.Foto" width="200" height="200" /><br />
+                    <input type="file" name="fotografia" /><span style="color:blue;">Se desejar, escolha outra imagem para ilustrar a Notícia</span>
+                    @Html.ValidationMessageFor(model => model.Foto, "", new { @class = "text-danger" })
+                </div>
             </div>
-        </div>
 
-        <div class="form-group">
-            @Html.LabelFor(model => model.TipoImagem, htmlAttributes: new { @class = "control-label col-md-2" })
-            <div class="col-md-10">
-                @Html.EditorFor(model => model.TipoImagem, "Tipo de Imagem", new { htmlAttributes = new { @class = "form-control" } })
-                @Html.ValidationMessageFor(model => model.TipoImagem, "", new { @class = "text-danger" })
+            <div class="form-group">
+                @Html.LabelFor(model => model.TipoImagem, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-10">
+                    @Html.EditorFor(model => model.TipoImagem, "Tipo de Imagem", new { htmlAttributes = new { @class = "form-control" } })
+                    @Html.ValidationMessageFor(model => model.TipoImagem, "", new { @class = "text-danger" })
+                </div>
             </div>
-        </div>
 
-        <div class="form-group">
-            @Html.LabelFor(model => model.Relevancia, htmlAttributes: new { @class = "control-label col-md-2" })
-            <div class="col-md-10">
-                @Html.EditorFor(model => model.Relevancia, new { htmlAttributes = new { @class = "form-control" } })
-                @Html.ValidationMessageFor(model => model.Relevancia, "", new { @class = "text-danger" })
+            <div class="form-group">
+                @Html.LabelFor(model => model.Relevancia, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-10">
+                    @Html.EditorFor(model => model.Relevancia, new { htmlAttributes = new { @class = "form-control" } })
+                    @Html.ValidationMessageFor(model => model.Relevancia, "", new { @class = "text-danger" })
+                </div>
             </div>
-        </div>
 
-        <div class="form-group">
-            @Html.LabelFor(model => model.DataPublicacao, "Data de Publicação", htmlAttributes: new { @class = "control-label col-md-2" })
-            <div class="col-md-10">
-                @Html.EditorFor(model => model.DataPublicacao, new { htmlAttributes = new { @class = "form-control" } })
-                @Html.ValidationMessageFor(model => model.DataPublicacao, "", new { @class = "text-danger" })
+            <div class="form-group">
+                @Html.LabelFor(model => model.DataPublicacao, "Data de Publicação", htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-10">
+                    @Html.EditorFor(model => model.DataPublicacao, new { htmlAttributes = new { @class = "form-control" } })
+                    @Html.ValidationMessageFor(model => model.DataPublicacao, "", new { @class = "text-danger" })
+                </div>
             </div>
-        </div>
 
-        <div class="form-group">
-            @Html.LabelFor(model => model.DataLimiteVisualizacao, "Data Limite de Visualização", htmlAttributes: new { @class = "control-label col-md-2" })
-            <div class="col-md-10">
-                @Html.EditorFor(model => model.DataLimiteVisualizacao, new { htmlAttributes = new { @class = "form-control" } })
-                @Html.ValidationMessageFor(model => model.DataLimiteVisualizacao, "", new { @class = "text-danger" })
+            <div class="form-group">
+                @Html.LabelFor(model => model.DataLimiteVisualizacao, "Data Limite de Visualização", htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-10">
+                    @Html.EditorFor(model => model.DataLimiteVisualizacao, new { htmlAttributes = new { @class = "form-control" } })
+                    @Html.ValidationMessageFor(model => model.DataLimiteVisualizacao, "", new { @class = "text-danger" })
+                </div>
             </div>
-        </div>
 
-        <div class="form-group">
-            @Html.LabelFor(model => model.Visivel, "Visível", htmlAttributes: new { @class = "control-label col-md-2" })
-            <div class="col-md-10">
-                <div class="checkbox">
-                    @Html.EditorFor(model => model.Visivel)
-                    @Html.ValidationMessageFor(model => model.Visivel, "", new { @class = "text-danger" })
+            <div class="form-group">
+                @Html.LabelFor(model => model.Visivel, "Visível", htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-10">
+                    <div class="checkbox">
+                        @Html.EditorFor(model => model.Visivel)
+                        @Html.ValidationMessageFor(model => model.Visivel, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                @*@foreach (var categoria in Model.Categorias)
+                    {
+                        <label>
+                            <input type="checkbox" name="categorias" value="@categoria.IdCategoria" checked />@categoria.Nome
+                        </label>
+                    }*@
+                @if (ViewBag.Categorias != null)
+                {
+                    string selecionada = "";
+                    foreach (var categoria in ViewBag.Categorias)
+                    {
+                        selecionada = "";
+                        if (Model.Categorias.Contains(categoria)) { selecionada = "checked"; }
+                        <label>
+                            <input type="checkbox" name="categorias" value="@categoria.IdCategoria" @selecionada /> @categoria.Nome
+                        </label>
+                    }
+                }
+            </div>
+
+            <div class="form-group">
+                <div class="col-md-offset-2 col-md-10">
+                    <input type="submit" value="Guardar" class="btn btn-default" />
                 </div>
             </div>
         </div>
+    }
 
-
-        <div class="form-group">
-            @Html.LabelFor(model => model.CriadorFK, "Autor", htmlAttributes: new { @class = "control-label col-md-2" })
-            <div class="col-md-10">
-                @Html.DropDownList("CriadorFK", null, htmlAttributes: new { @class = "form-control" })
-                @Html.ValidationMessageFor(model => model.CriadorFK, "", new { @class = "text-danger" })
-            </div>
-        </div>
-        <div class="form-group">
-            @foreach (var categoria in Model.Categorias)
-            {
-                <label>
-                    <input type="checkbox" name="categorias" value="@categoria.IdCategoria" checked />@categoria.Nome
-                </label>
-            }
-            @if (ViewBag.Categorias != null)
-            {
-                foreach (var categoria in ViewBag.Categorias)
-                {
-                    <label>
-                        <input type="checkbox" name="categorias" value="@categoria.IdCategoria" /> @categoria.Nome
-                    </label>
-
-                }
-            }
-        </div>
-
-        <div class="form-group">
-            <div class="col-md-offset-2 col-md-10">
-                <input type="submit" value="Guardar" class="btn btn-default" />
-            </div>
-        </div>
+    <div>
+        @Html.ActionLink("Voltar à lista", "Index")
     </div>
-}
-
-<div class="row">
-    @Html.ActionLink("Voltar à lista", "Index")
-</div>
 
 
 </div>
@@ -144,3 +142,12 @@
 @section Scripts {
     @Scripts.Render("~/bundles/jqueryval")
 }
+<script>
+    $(document).ready(function () {
+        // esconde a mensagem de alerta que apareça
+        setTimeout(function () {
+            $("#msg").fadeOut(1000);
+        }, 6000);
+    });
+
+</script>

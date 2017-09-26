@@ -22,3 +22,20 @@ select,
 textarea {
     max-width: 280px;
 }
+.dropdown .dropdown-menu {
+    display: block;
+    visibility: hidden;
+    opacity: 0;
+    transition: all 1s ease;
+    transform: translateY(5em);
+    z-index: -1;
+}
+
+.dropdown:hover .dropdown-menu {
+    display: block;
+    visibility: visible;
+    opacity: 1;
+    transform: translateY(0%);
+    z-index: 1;
+}
+
