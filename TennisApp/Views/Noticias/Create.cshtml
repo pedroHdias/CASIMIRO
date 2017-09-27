@@ -20,7 +20,7 @@
 <h2>Criar Notícia</h2>
 
 
-@using (Html.BeginForm("Create", "Noticias", FormMethod.Post, new { @class = "form-control", enctype = "multipart/form-data" }))
+@using (Html.BeginForm("Create", "Noticias", FormMethod.Post, new { enctype = "multipart/form-data"}))
 {
     @Html.AntiForgeryToken()
 
@@ -48,7 +48,7 @@
         <div class="form-group">
             @Html.LabelFor(model => model.Foto, htmlAttributes: new { @class = "control-label col-md-2" })
             <div class="col-md-10">
-                <input type="file" name="fotografia" /><span style="color:blue;">Escolha uma imagem para ilustrar a Notícia</span>
+                <input type="file" name="fotografia" id="fotografia"/><span style="color:blue;">Escolha uma imagem para ilustrar a Notícia</span>
                 @Html.ValidationMessageFor(model => model.Foto, "", new { @class = "text-danger" })
             </div>
         </div>

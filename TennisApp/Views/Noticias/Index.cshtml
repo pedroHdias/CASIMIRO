@@ -37,7 +37,7 @@
 
 <h2>Notícias</h2>
 
-<div class="container">
+<div >
     <div class="row" style="padding:5px;">
         <div class="col col-md-9" style="font-size:14px;">
             @using (Html.BeginForm("Index", "Noticias", FormMethod.Get))
@@ -55,7 +55,7 @@
             }
         </div>
         <div class="col-12 col-lg-2" style="font-size:14px;">
-            @if (User.IsInRole("Administrador"))
+            @if (User.IsInRole("Jornalista"))
             {
                 <label>@Html.ActionLink("Criar uma notícia", "Create")</label>
             }

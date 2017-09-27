@@ -46,15 +46,19 @@
             </div>
         </div>
 
-        <div class="form-group">
-            @Html.LabelFor(model => model.Visivel, htmlAttributes: new { @class = "control-label col-md-2" })
-            <div class="col-md-10">
-                <div class="checkbox">
-                    @Html.EditorFor(model => model.Visivel)
-                    @Html.ValidationMessageFor(model => model.Visivel, "", new { @class = "text-danger" })
+        @*se o utilizador for do tipo Moderador, pode censurar*@
+        @if (User.IsInRole("Moderador"))
+        {
+            <div class="form-group">
+                @Html.LabelFor(model => model.Visivel, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-10">
+                    <div class="checkbox">
+                        @Html.EditorFor(model => model.Visivel)
+                        @Html.ValidationMessageFor(model => model.Visivel, "", new { @class = "text-danger" })
+                    </div>
                 </div>
             </div>
-        </div>
+        }
 
         <div class="form-group">
             @Html.LabelFor(model => model.NoticiaFK, "NoticiaFK", htmlAttributes: new { @class = "control-label col-md-2" })

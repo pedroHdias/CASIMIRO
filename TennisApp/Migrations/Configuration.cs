@@ -50,7 +50,7 @@ namespace TennisApp.Migrations
             }
             // criar um utilizador 'Moderador'
             user = new ApplicationUser();
-            user.UserName = "c@b.cc";
+            user.UserName = "c@c.cc";
             user.Email = "c@c.cc";
             userPWD = "123_Aa";
             chkUser = userManager.Create(user, userPWD);

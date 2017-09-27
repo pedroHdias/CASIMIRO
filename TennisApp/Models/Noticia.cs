@@ -30,7 +30,7 @@ namespace TennisApp.Models
         [DataType(DataType.MultilineText)]
         public string Descricao { get; set; }
 
-        [Required(ErrorMessage = "É necessário referenciar uma Imagem.")]
+        //[Required(ErrorMessage = "É necessário referenciar uma Imagem.")]
         public string Foto { get; set; }
 
         // identifica se estamos perante um ficheiro ou um URL

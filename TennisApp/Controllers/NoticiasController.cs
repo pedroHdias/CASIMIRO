@@ -21,7 +21,7 @@ namespace TennisApp.Controllers
         // GET: Noticias
         [AllowAnonymous]
         [OutputCache(Duration = 10)]
-        public ActionResult Index(string searchBy, string search, int? page, string sortBy, string categoriaString)
+        public ActionResult Index(string searchBy, string search, int? page, string sortBy, string categoriaString, string searchString)
         {
             ViewBag.SortAutorParameter = string.IsNullOrEmpty(sortBy) ? "Autor desc" : "";
             ViewBag.SortTituloParameter = sortBy == "Titulo" ? "Titulo desc" : "Titulo";
@@ -50,9 +50,21 @@ namespace TennisApp.Controllers
             else if (!String.IsNullOrEmpty(categoriaString))
             {
                 noticias = noticias.Where(x => x.Categorias.Select(c => c.Nome).Contains(categoriaString));
-                // https://stackoverflow.com/questions/13405568/linq-unable-to-create-a-constant-value-of-type-xxx-only-primitive-types-or-enu
+                //https://stackoverflow.com/questions/13405568/linq-unable-to-create-a-constant-value-of-type-xxx-only-primitive-types-or-enu
             }
-            else
+            else if (searchString == "Torneios")
+            {
+                noticias = noticias.Where(x => x.Categorias.Select(c => c.Nome).Contains(searchString));
+            }
+            else if (searchString == "Clube")
+            {
+                noticias = noticias.Where(x => x.Categorias.Select(c => c.Nome).Contains(searchString));
+            }
+            else if (searchString == "Notícias")
+            {
+                noticias = noticias.Where(x => x.Categorias.Select(c => c.Nome).Contains(searchString));
+            }
+            else 
             {
                 noticias = noticias.Where(x => x.Descricao.Contains(search) || search == null);
             }
@@ -115,7 +127,7 @@ namespace TennisApp.Controllers
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Jornalista")]
         public ActionResult Create([Bind(Include = "Titulo,Descricao,Foto,TipoImagem,Relevancia,DataPublicacao,DataLimiteVisualizacao,Visivel,CriadorFK")] Noticia noticia,
-            string[] categorias, HttpPostedFile fotografia)
+            int[] categorias, HttpPostedFileBase fotografia)
         {
             if (categorias != null)
             {
@@ -151,7 +163,7 @@ namespace TennisApp.Controllers
                     var listaCategorias = new List<Categoria>();
                     foreach (var cat in categorias)
                     {
-                        listaCategorias.Add(db.Categorias.Find(cat));
+                        listaCategorias.Add(db.Categorias.Where(x=>x.IdCategoria == cat).FirstOrDefault());
                     }
                     noticia.Categorias = listaCategorias;
 
@@ -238,10 +250,47 @@ namespace TennisApp.Controllers
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Jornalista,Moderador")]
         public ActionResult Edit([Bind(Include = "IdNoticia,Titulo,Descricao,Foto,TipoImagem,Relevancia,DataPublicacao,DataLimiteVisualizacao,Visivel,CriadorFK")] Noticia noticia,
-             string[] categorias, HttpPostedFile fotografia)
+             int[] categorias, HttpPostedFileBase fotografia)
         {
             if (categorias != null)
             {
+                //verificar se a noticia já tem uma foto e nao pretende alterar
+                var foto = noticia.Foto;
+                if (!String.IsNullOrEmpty(noticia.Foto) && fotografia == null)
+                {
+                    //atribuir as categorias à notícia
+                    // iterar pelo array de categorias e criar uma lista de categorias
+                    var listaCategorias = new List<Categoria>();
+                    foreach (var cat in categorias)
+                    {
+                        listaCategorias.Add(db.Categorias.Where(x => x.IdCategoria == cat).FirstOrDefault());
+                    }
+                    noticia.Categorias = listaCategorias;
+
+                    StringBuilder sbNoticias = new StringBuilder();
+                    sbNoticias.Append(HttpUtility.HtmlEncode(noticia.Descricao));
+
+                    sbNoticias.Replace("&lt;b&gt;", "<b>");
+                    sbNoticias.Replace("&lt;/b&gt;", "</b>");
+                    sbNoticias.Replace("&lt;u&gt;", "<u>");
+                    sbNoticias.Replace("&lt;/u&gt;", "</u>");
+                    sbNoticias.Replace("\r\n", "<br />");
+
+                    noticia.Descricao = sbNoticias.ToString();
+
+                    string strTitulo = HttpUtility.HtmlEncode(noticia.Titulo);
+                    noticia.Titulo = strTitulo;
+
+                    if (ModelState.IsValid)
+                    {
+                        db.Entry(noticia).State = EntityState.Modified;
+                        db.SaveChanges();
+                        TempData["Edit"] = "" + noticia.Titulo;
+                        return RedirectToAction("Index");
+                    }
+                }
+                //Se se pretende adicionar uma foto nova
+                //https://stackoverflow.com/questions/16255882/uploading-displaying-images-in-mvc-4/16256106#16256106
                 if (fotografia != null)
                 {
                     //Se existir uma foto para esta noticia, apaga-a
@@ -268,9 +317,14 @@ namespace TennisApp.Controllers
                     //atribuir as categorias à notícia
                     // iterar pelo array de categorias e criar uma lista de categorias
                     var listaCategorias = new List<Categoria>();
+                    var cats = db.Categorias.OrderBy(c => c.Nome);
+                    foreach (var cat in cats)
+                    {
+                        noticia.Categorias.Remove(cat);
+                    }
                     foreach (var cat in categorias)
                     {
-                        listaCategorias.Add(db.Categorias.Find(cat));
+                        listaCategorias.Add(db.Categorias.Where(x => x.IdCategoria == cat).FirstOrDefault());
                     }
                     noticia.Categorias = listaCategorias;
 

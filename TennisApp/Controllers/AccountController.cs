@@ -179,6 +179,7 @@ namespace TennisApp.Controllers
 
                     utilizador.Nome = model.Utilizador.Nome;
                     utilizador.Email = model.Email;
+                    utilizador.Tipo = "Default";
                     utilizador.Telemovel = model.Utilizador.Telemovel;
                     utilizador.DataNasc = model.Utilizador.DataNasc;
                     utilizador.UserName = model.Email;

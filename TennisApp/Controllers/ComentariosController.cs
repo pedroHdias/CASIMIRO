@@ -12,6 +12,7 @@ using TennisApp.Models;
 using PagedList;
 using PagedList.Mvc;
 using Microsoft.AspNet.Identity;
+using System.Text.RegularExpressions;
 
 namespace TennisApp.Controllers
 {
@@ -41,8 +42,8 @@ namespace TennisApp.Controllers
                 Comentario novoComentario = new Comentario();
 
                 // adicionar dados ao obj que vai levar os dados para a BD
-                novoComentario.Noticia.IdNoticia = idNoticia;
-                novoComentario.Criador.Nome = User.Identity.GetUserId();
+                novoComentario.NoticiaFK = idNoticia;
+                novoComentario.CriadorFK = db.Utilizadores.Where(u => u.UserName.Equals(User.Identity.Name)).FirstOrDefault().IdUtilizador;
                 novoComentario.DataComentario = DateTime.Now;
                 novoComentario.Texto = comentario;
                 novoComentario.Visivel = true;
@@ -58,7 +59,44 @@ namespace TennisApp.Controllers
                     TempData["Error"] = "Comentário inválido";
                 }
             }
-            return RedirectToAction("Details", "News", new { Id = idNoticia });
+            return RedirectToAction("Details", "Noticias", new { Id = idNoticia });
+        }
+        /// censura um comentário
+        [HttpPost]
+        [ValidateInput(false)]
+        [ValidateAntiForgeryToken]
+        public ActionResult Censura(int idComentario, int idNoticia)
+        {
+            var comentario = db.Comentarios.Find(idComentario);
+            comentario.Visivel = false;
+            if (ModelState.IsValid)
+            {
+                db.Entry(comentario).State = EntityState.Modified;
+                db.SaveChanges();
+                TempData["Edit"] = "";
+                return RedirectToAction("Details", "Noticias", new { Id = idNoticia });
+            }
+
+            return RedirectToAction("Details", "Noticias", new { Id = idNoticia });
+        }
+
+        /// censura um comentário
+        [HttpPost]
+        [ValidateInput(false)]
+        [ValidateAntiForgeryToken]
+        public ActionResult MostraComentario(int idComentario, int idNoticia)
+        {
+            var comentario = db.Comentarios.Find(idComentario);
+            comentario.Visivel = true;
+            if (ModelState.IsValid)
+            {
+                db.Entry(comentario).State = EntityState.Modified;
+                db.SaveChanges();
+                TempData["Edit"] = "";
+                return RedirectToAction("Details", "Noticias", new { Id = idNoticia });
+            }
+
+            return RedirectToAction("Details", "Noticias", new { Id = idNoticia });
         }
 
         // GET: Comentarios
@@ -204,6 +242,7 @@ namespace TennisApp.Controllers
         [ValidateInput(false)]
         public ActionResult Edit([Bind(Include = "IdComentario,Texto,DataComentario,Visivel,NoticiaFK,CriadorFK")] Comentario comentario)
         {
+
             StringBuilder sbComentarios = new StringBuilder();
             sbComentarios.Append(HttpUtility.HtmlEncode(comentario.Texto));
 
@@ -226,7 +265,7 @@ namespace TennisApp.Controllers
             ViewBag.NoticiaFK = new SelectList(db.Noticias, "IdNoticia", "Titulo", comentario.NoticiaFK);
             return View(comentario);
         }
-
+       
         // GET: Comentarios/Delete/5
         public ActionResult Delete(int? id)
         {
@@ -254,6 +293,29 @@ namespace TennisApp.Controllers
             }
             TempData["Error"] = "Não tem permissões para remover este comentário";
             return RedirectToAction("Index");
+        }
+
+        // POST: Commentaries/Delete/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult DeleteComment(int IdComentario)
+        {
+            Comentario comentarios = db.Comentarios.Find(IdComentario);
+            var Id = comentarios.Noticia.IdNoticia;
+            try
+            {
+                db.Comentarios.Remove(comentarios);
+                db.SaveChanges();
+                TempData["Delete"] = "";
+
+            }
+            catch (Exception ex)
+            {
+
+                TempData["Erro"] = "";
+            }
+
+            return RedirectToAction("Details", "Noticias", new { Id = Id });
         }
 
         // POST: Comentarios/Delete/5
